@@ -1,73 +1,67 @@
 # Implementation Plan
 *Tracking progress against `game_skeleton.md` Blueprint*
 
-## 1. Core Systems (Blueprint Sec 1 & 3)
-- [x] **Project Setup** [Version 0.1]
+## Phase 1: Core Loop & Hub (Blueprint Sec 1 & 3)
+- [x] **Project Setup**
     - [x] Godot Project Init & Config.
     - [x] Game Manager & Global State.
-- [x] **Game Loop** [Sec 3]
+- [ ] **Run Structure & Loop**
     - [x] Core Loop: Start Run -> Play -> Die/Win -> Reset.
     - [x] Dungeon Generation (Linear Room Chain).
-    - [ ] Biome Mechanics (City specific tilesets/enemies - *Basic Implementation Done*).
+    - [ ] **Retention Logic:** 50% Loot retention on Death, 100% on Success.
+    - [ ] **Hub: Oil Rig** (Start/Return point).
+    - [ ] **Safe Zones:** FOB Echo (between City/Mountain), Outpost Mirage (between Mountain/Desert).
 
-## 2. Player Mechanics (Blueprint Sec 4)
+## Phase 2: Player & Combat Refinement (Blueprint Sec 4)
 - [x] **Controls**
     - [x] Twin Stick Scheme (WASD + Mouse).
-    - [x] Camera-Relative Input (Diagonal offsets supported).
-    - [x] Dash (Spacebar/Gamepad) with I-Frames [0.3s].
-    - [x] **Tactical Aiming:**
-        - [x] Smooth Slerp Rotation (No snapping).
-        - [x] Independent Weapon Cone [30 degrees].
-        - [x] 3D Aim Reticle (Red Cross inside Circle).
-- [x] **Physics**
-    - [x] Hybrid Arcade Movement (Accel/Decel/Rotation tuned).
-    - [x] Floating Physics (No floor bounce).
-    - [x] Combat Physics (Collision Layers + No Friendly Fire).
+    - [x] Dash (Spacebar) with I-Frames [0.3s].
+    - [ ] **Ultimate Key:** Bind to 'F'.
+- [x] **Physics & Health**
+    - [x] Hybrid Arcade Movement (Accel=50, Decel=20 sync).
+    - [ ] **Damage Tweak:** Wall collisions deal 5 damage.
+    - [ ] **I-Frames:** 1.0s invulnerability after taking a hit.
+- [ ] **Ultimates (Pending Implementations)**
+    - [ ] Aegis Field (Shield) / System Overdrive (Buff).
+    - [ ] Tactical: Orbital Strike / Squadron Call-In.
+    - [ ] Utility: Nanite Cloud (Heal) / Thunderclap EMP (Stun).
 
-## 3. Economy & Resources (Blueprint Sec 2)
-- [x] **Resources**
-    - [x] Scraps Collection & UI.
-    - [x] Intel Collection & UI.
-- [x] **Loot**
-    - [x] Mob Drops (Scraps).
-    - [x] Pickup Logic (Magnetic/Collision).
+## Phase 3: Economy & Arsenal (Blueprint Sec 2 & 6)
+- [x] **Resources & Loot**
+    - [x] Scraps & Intel collection.
+    - [ ] **Balance:** Sync loot amounts (Mobs 1-5 scraps, POI 1-3 intel, Boss 300 scraps/4 intel).
+- [ ] **Helicopters (Tier Progression)**
+    - [x] H11 Starter (Military_Helicopter02 mesh).
+    - [ ] H21/H22 Upgrades (Tier 1).
+    - [ ] H31/H32/H33 Upgrades (Tier 2).
+- [ ] **Weapons**
+    - [x] Machine Gun (Bullet shape + Tracer).
+    - [x] Rocket Launcher (AOE).
+    - [ ] Laser (Beam/DOT) / Railgun (Hitscan/Pierce).
 
-## 4. Content: Arsenal (Blueprint Sec 6)
-- [x] **Helicopters**
-    - [x] H11 Starter (Stats implemented).
-    - [x] Visual Replacement (Integrated Military_Helicopter02 FBX).
-    - [x] Rotor Animations (Custom pivots for center-axis rotation).
-- [x] **Weapons**
-    - [x] Machine Gun (Projectile, single target).
-    - [x] Rocket Launcher (AOE, Slow Fire).
-    - [ ] Laser / Railgun.
-- [x] **Ultimates**
-    - [ ] Orbital Strike / Drones / etc. (Not started).
+## Phase 4: World & Content (Blueprint Sec 5)
+- [x] **City Biome (Completed)**
+    - [x] Concrete canyons, Hunter-killer drones, Boss: The Constructor.
+- [ ] **Mountain Biome**
+    - [ ] Pine forest assets, Storm mechanics, Boss: Thunderhead Summit.
+- [ ] **Desert Biome**
+    - [ ] Sandstorm mechanics, Railgun enemies, Boss: Glass Cradle.
+- [ ] **POIs**
+    - [x] Rescue (Greenhouse) & Radar Sabotage.
+    - [ ] **New:** Convoy Protection.
 
-## 5. Content: World (Blueprint Sec 5)
-- [x] **Biomes**
-    - [x] City (Greybox Prototype).
-- [x] **Entities**
-    - [x] Mob: Scout Drone (Chaser + Shooter).
-    - [x] Mob: Turret (Stationary Defense).
-    - [x] POIs (Rescue & Destroy Objectives).
-    - [x] Boss: The Constructor (City Boss, 2 Phases).
-    - [x] Grounding: All elements flush with ground (Y=0).
-    - [x] Flight Fix: Removed environment collisions (Hills/Rocks/Trees) for smooth movement.
-
-## 6. UI (Blueprint Sec 7)
+## Phase 5: UI & UX (Blueprint Sec 7)
 - [x] **HUD**
-    - [x] Health Bar.
-    - [x] Resource Counter.
-    - [x] Dash Cooldown.
-    - [x] Objective Tracker (Count & Completion).
+    - [x] Health, Scraps, Intel, Dash, Objectives.
     - [ ] Minimap.
-- [x] **Menus**
+    - [ ] Weapon Info (Current weapon / Ammo status).
+- [ ] **Menus**
     - [x] Game Over Screen.
-    - [ ] Main Menu / Pause / Settings.
+    - [ ] Main Menu / Pause Menu / Settings.
+    - [ ] **Upgrade Shop:** Spending resources in Hub/Safe Zones.
 
-## Next Steps (Gap Analysis)
-1.  **Arsenal:** Implement Ultimate Ability (Orbital Strike or Drones).
-2.  **UI:** Implement Minimap for spatial awareness.
-3.  **Progression:** Implement Inter-level Upgrade shop (spending Scraps/Intel).
-4.  **World:** Begin work on the Mountain Biome (Terrain & Storm mechanics).
+## Next Steps (Immediate Priorities)
+1. **Hub Transition:** Create a basic Hub scene and implement the logic to return there with loot retention.
+2. **Combat Polish:** Implement I-Frames on hit and Wall collision damage.
+3. **Ultimates:** Implement the first Ultimate ability (Aegis Field or Overdrive).
+4. **Mini-map:** Add spatial awareness to the HUD.
