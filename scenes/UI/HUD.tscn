@@ -1,0 +1,100 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/UI/HUD.gd" id="1_hud"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_red"]
+bg_color = Color(0.8, 0.2, 0.2, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_green"]
+bg_color = Color(0.2, 0.8, 0.2, 1)
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hud")
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 320.0
+offset_bottom = 50.0
+theme_override_styles/fill = SubResource("StyleBoxFlat_green")
+value = 100.0
+
+[node name="ScrapLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 60.0
+offset_right = 150.0
+offset_bottom = 90.0
+text = "SCRAP: 0"
+
+[node name="DashBar" type="ProgressBar" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 100.0
+offset_right = 220.0
+offset_bottom = 120.0
+show_percentage = false
+
+[node name="DebugLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 130.0
+offset_right = 200.0
+offset_bottom = 200.0
+text = "Debug Info"
+
+[node name="ObjectiveLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -250.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 50.0
+grow_horizontal = 0
+text = "Objectives: 0/0"
+horizontal_alignment = 2
+
+[node name="BossHUD" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -250.0
+offset_top = 20.0
+offset_right = 250.0
+offset_bottom = 70.0
+grow_horizontal = 2
+
+[node name="BossName" type="Label" parent="BossHUD"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_right = 100.0
+offset_bottom = 23.0
+grow_horizontal = 2
+text = "THE CONSTRUCTOR"
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="BossHUD"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/fill = SubResource("StyleBoxFlat_red")
+value = 100.0

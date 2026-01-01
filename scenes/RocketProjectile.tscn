@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://rocketproj1"]
+
+[ext_resource type="Script" path="res://scripts/RocketProjectile.gd" id="1_rocket"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_rocket"]
+radius = 0.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_rocket"]
+top_radius = 0.2
+bottom_radius = 0.2
+height = 1.0
+
+[node name="RocketProjectile" type="Area3D"]
+script = ExtResource("1_rocket")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+shape = SubResource("SphereShape3D_rocket")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+mesh = SubResource("CylinderMesh_rocket")

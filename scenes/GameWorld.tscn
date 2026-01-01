@@ -1,0 +1,38 @@
+[gd_scene load_steps=9 format=3 uid="uid://world12345"]
+
+[ext_resource type="PackedScene" uid="uid://player12345" path="res://scenes/Player.tscn" id="1_player"]
+[ext_resource type="PackedScene" uid="uid://enemy12345" path="res://scenes/Enemy.tscn" id="2_enemy"]
+[ext_resource type="Script" uid="uid://cxm1fir862rat" path="res://scripts/CameraFollow.gd" id="3_camera_script"]
+[ext_resource type="PackedScene" uid="uid://hud12345" path="res://scenes/UI/HUD.tscn" id="4_hud"]
+[ext_resource type="PackedScene" uid="uid://ce7i3thjhu8ee" path="res://scenes/UI/GameOverScreen.tscn" id="5_gameover"]
+[ext_resource type="Script" uid="uid://dph764u0k4x4u" path="res://scripts/GameLevel.gd" id="6_level_script"]
+[ext_resource type="Script" uid="uid://yxcha6eh23lp" path="res://scripts/DungeonGenerator.gd" id="7_generator_script"]
+[ext_resource type="PackedScene" uid="uid://room12345" path="res://scenes/Room.tscn" id="8_room"]
+
+[node name="GameWorld" type="Node3D"]
+script = ExtResource("6_level_script")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 10, 0)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.70710677, -0.66446316, 0.24184483, 0, 0.34202024, 0.93969285, -0.70710677, -0.66446316, 0.24184483, 0, 0, 0)
+fov = 80.0
+script = ExtResource("3_camera_script")
+target_path = NodePath("../Player")
+offset = Vector3(5, 20, 5)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HUD" parent="CanvasLayer" instance=ExtResource("4_hud")]
+
+[node name="GameOverScreen" parent="CanvasLayer" instance=ExtResource("5_gameover")]
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="DungeonGenerator" type="Node3D" parent="."]
+script = ExtResource("7_generator_script")
+room_scene = ExtResource("8_room")
+enemy_scene = ExtResource("2_enemy")

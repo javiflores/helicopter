@@ -1,0 +1,1416 @@
+{
+  "game": {
+    "info": {
+      "author": "Hammerfall Studios/aerikmon",
+      "description": "Top down helicopter combat game with roguelike elements, procedurally generated content and a focus on strategy and resource management.",
+      "name": "Helicopter Helicopter Heli...",
+      "version": "0.1"
+    },
+    "resources": {
+      "scraps": {
+        "description": "Common currency for basic unlocks."
+      },
+      "intel": {
+        "description": "Rare data required for advanced prototype unlocks."
+      }
+    },
+    "rules": {
+      "pois_per_biome": 10,
+      "pois_to_complete": 5,
+      "progression_order": [
+        "base_oil_rig",
+        "biome_city",
+        "arena_city_boss",
+        "base_safe_zone_1",
+        "biome_mountains",
+        "arena_mountain_boss",
+        "base_safe_zone_2",
+        "biome_desert",
+        "arena_desert_boss"
+      ],
+      "game_loop": {
+        "pre_run_setup": {
+          "required_selection": [
+            "helicopter",
+            "primary_weapon",
+            "ultimate"
+          ]
+        },
+        "roguelite_mechanics": {
+          "reset_on_run_end": [
+            "weapon_upgrades"
+          ],
+          "persistent_data": [
+            "scraps",
+            "intel",
+            "unlocked_helicopters",
+            "unlocked_weapons",
+            "unlocked_ultimates"
+          ]
+        },
+        "run_outcome": {
+          "death": {
+            "description": "Helicopter destroyed. Emergency extraction initiated.",
+            "loot_retention_multiplier": 0.5,
+            "next_state": "base_hub"
+          },
+          "success": {
+            "description": "All biomes cleared. Returning to base with full cargo.",
+            "loot_retention_multiplier": 1.0,
+            "next_state": "base_hub"
+          }
+        }
+      }
+    },
+    "economy": {
+      "loot_tables": {
+        "mob_kill": {
+          "scraps": [
+            1,
+            5
+          ]
+        },
+        "poi_complete": {
+          "intel": [
+            1,
+            3
+          ]
+        },
+        "boss_kill": {
+          "scraps": [
+            200,
+            300
+          ],
+          "intel": [
+            2,
+            4
+          ],
+          "upgrade_choices": 3
+        }
+      }
+    },
+    "ui": {
+      "hud": {
+        "elements": [
+          {
+            "name": "HealthBar",
+            "anchor": "TopLeft",
+            "visible": true
+          },
+          {
+            "name": "Minimap",
+            "anchor": "BottomRight",
+            "visible": true
+          },
+          {
+            "name": "WeaponInfo",
+            "anchor": "BottomLeft",
+            "visible": true
+          },
+          {
+            "name": "ObjectiveTracker",
+            "anchor": "TopRight",
+            "visible": true
+          },
+          {
+            "name": "ResourceCounter",
+            "anchor": "TopCenter",
+            "visible": true
+          }
+        ]
+      },
+      "menus": {
+        "pause_menu": {
+          "enabled": true,
+          "options": [
+            "Resume",
+            "Settings",
+            "Quit"
+          ]
+        },
+        "settings_menu": {
+          "audio": true,
+          "graphics": true,
+          "controls": true
+        },
+        "upgrade_selection": {
+          "description": "Displayed after boss kills",
+          "card_count": 3
+        }
+      }
+    }
+  },
+  "world": {
+    "points_of_interest": {
+      "poi_rescue": {
+        "name": "Civilian Rescue",
+        "description": "Extract civilians trapped in hostile structures before they are overwhelmed.",
+        "type": "objective",
+        "rewards": [
+          "scraps"
+        ],
+        "visuals": {
+          "model": "model_poi_rescue_bunker",
+          "audio": {
+            "sfx_ambient": "sfx_env_rescue_beacon"
+          },
+          "vfx": {
+            "marker": "vfx_obj_marker_green"
+          }
+        }
+      },
+      "poi_destroy": {
+        "name": "Radar Sabotage",
+        "description": "Locate and demolish enemy radar arrays to blind local defenses.",
+        "type": "objective",
+        "rewards": [
+          "intel"
+        ],
+        "visuals": {
+          "model": "model_poi_radar_dish",
+          "audio": {
+            "sfx_ambient": "sfx_env_radar_hum"
+          },
+          "vfx": {
+            "destruction": "vfx_explosion_large"
+          }
+        }
+      },
+      "poi_defend": {
+        "name": "Convoy Protection",
+        "description": "Escort a supply convoy through varying terrain, repelling ambushers.",
+        "type": "objective",
+        "rewards": [
+          "scraps",
+          "intel"
+        ],
+        "visuals": {
+          "model": "model_poi_convoy_truck",
+          "audio": {
+            "sfx_move": "sfx_vehicle_engine_heavy"
+          },
+          "vfx": {
+            "trail": "vfx_dust_trail"
+          }
+        }
+      }
+    },
+    "arenas": {
+      "arena_city_boss": {
+        "description": [
+          "A sprawling, soot-stained industrial complex where molten metal flows like water.",
+          "The air vibrates with the ceaseless grinding of The Constructor's machinery.",
+          "Becomes accessible once the city's automated defenses are dismantled."
+        ],
+        "name": "The Iron Foundry",
+        "visuals": {
+          "model": "model_arena_foundry_floor",
+          "audio": {
+            "bgm": "music_boss_city_industrial"
+          },
+          "vfx": {
+            "ambience": "vfx_env_sparks_and_steam"
+          }
+        }
+      },
+      "arena_mountain_boss": {
+        "description": [
+          "The jagged peak of the highest mountain, perpetually shrouded in unnatural lightning storms.",
+          "Visibility is near zero, illuminated only by the Storm Bird's engines.",
+          "Unlocked by clearing the alpine sector of AA batteries."
+        ],
+        "name": "Thunderhead Summit",
+        "visuals": {
+          "model": "model_arena_mountain_peak",
+          "audio": {
+            "bgm": "music_boss_mountain_storm"
+          },
+          "vfx": {
+            "ambience": "vfx_env_lightning_storm"
+          }
+        }
+      },
+      "arena_desert_boss": {
+        "description": [
+          "A vast, crystalline crater formed by intense heat.",
+          "Shifting sands and blinding reflections conceal the Mirage Core's true location.",
+          "Accessible only after securing the desert supply lines."
+        ],
+        "name": "The Glass Cradle",
+        "visuals": {
+          "model": "model_arena_desert_crater",
+          "audio": {
+            "bgm": "music_boss_desert_heat"
+          },
+          "vfx": {
+            "ambience": "vfx_env_heat_haze"
+          }
+        }
+      }
+    },
+    "bases": {
+      "base_oil_rig": {
+        "description": "A weather-beaten extraction platform in the middle of a stormy ocean. The operations command center.",
+        "name": "Oil Rig",
+        "visuals": {
+          "model": "model_base_oil_rig_platform",
+          "audio": {
+            "bgm": "music_base_calm_waves"
+          },
+          "vfx": {
+            "ambience": "vfx_env_rain_light"
+          }
+        }
+      },
+      "base_safe_zone_1": {
+        "description": "A hastily established Forward Operating Base in the ruins of the city, fortified against the drone swarms.",
+        "name": "FOB: Echo",
+        "visuals": {
+          "model": "model_base_fob_ruins",
+          "audio": {
+            "bgm": "music_base_military_drum"
+          },
+          "vfx": {
+            "ambience": "vfx_env_dust_motes"
+          }
+        }
+      },
+      "base_safe_zone_2": {
+        "description": "A hidden supply cache and research station dug into the mountain rock, offering respite from the cold.",
+        "name": "Outpost: Mirage",
+        "visuals": {
+          "model": "model_base_bunker_entrance",
+          "audio": {
+            "bgm": "music_base_wind_chimes"
+          },
+          "vfx": {
+            "ambience": "vfx_env_snow_drift"
+          }
+        }
+      }
+    },
+    "biomes": {
+      "biome_city": {
+        "description": [
+          "A decaying metropolis of concrete canyons and rusted skyscrapers.",
+          "Streets are choked with debris, and the skyline is dominated by surveillance towers.",
+          "Patrolled by hunter-killer drones and automated turrets."
+        ],
+        "name": "City",
+        "available_pois": [
+          "poi_rescue",
+          "poi_destroy"
+        ],
+        "visuals": {
+          "tileset": "tileset_city_ruins",
+          "audio": {
+            "bgm": "music_biome_city_exploration"
+          },
+          "vfx": {
+            "skybox": "vfx_sky_city_smog"
+          }
+        }
+      },
+      "biome_mountains": {
+        "description": [
+          "Treacherous alpine terrain where dense pine forests and icy ravines hide lethal ambushes.",
+          "The cold air freezes weaker components, and the wind masks the sound of approaching hostiles."
+        ],
+        "name": "Mountains",
+        "available_pois": [
+          "poi_destroy",
+          "poi_defend"
+        ],
+        "visuals": {
+          "tileset": "tileset_mountain_forest",
+          "audio": {
+            "bgm": "music_biome_mountain_wind"
+          },
+          "vfx": {
+            "skybox": "vfx_sky_mountain_overcast"
+          }
+        }
+      },
+      "biome_desert": {
+        "description": [
+          "An endless expanse of scorching dunes and ancient ruins.",
+          "Heat distortion makes enemies hard to spot, and sudden sandstorms can cut sensors.",
+          "Home to stealth units and long-range railgun emplacements."
+        ],
+        "name": "Desert",
+        "available_pois": [
+          "poi_rescue",
+          "poi_defend"
+        ],
+        "visuals": {
+          "tileset": "tileset_desert_dunes",
+          "audio": {
+            "bgm": "music_biome_desert_drone"
+          },
+          "vfx": {
+            "skybox": "vfx_sky_desert_sun"
+          }
+        }
+      }
+    }
+  },
+  "player": {
+    "mechanics": {
+      "controls": {
+        "scheme": "twin_stick",
+        "actions": {
+          "move": "WASD",
+          "aim": "Mouse Cursor",
+          "fire_primary": "Left Mouse Button",
+          "fire_secondary": "Right Mouse Button",
+          "dash": "Spacebar",
+          "ultimate": "F",
+          "interact": "E"
+        }
+      },
+      "movement_physics": {
+        "type": "hybrid_arcade",
+        "tuning_parameters": {
+          "acceleration": 30.0,
+          "deceleration": 15.0,
+          "rotation_smoothing": 0.5,
+          "max_speed_cap": "defined_by_heli_specs"
+        }
+      },
+      "combat_physics": {
+        "invulnerability_frames": {
+          "on_hit_duration": 1.0,
+          "on_dash_duration": 0.3
+        },
+        "collision_damage": {
+          "walls": 5,
+          "enemies": "variable_based_on_enemy_mass"
+        }
+      }
+    },
+    "ultimates": {
+      "ult_orbital": {
+        "name": "Orbital Strike",
+        "visuals": {
+          "vfx": {
+            "activation": "vfx_ult_orbital_laser_beam",
+            "impact": "vfx_ult_orbital_ground_scorch"
+          },
+          "audio": {
+            "sfx_activate": "sfx_ult_orbital_charge_fire"
+          }
+        },
+        "description": "Calls down a high-intensity laser beam from orbit, dealing massive damage in a large area.",
+        "mechanics": {
+          "cooldown": 60.0,
+          "damage": 500,
+          "radius": 8.0,
+          "delay": 1.5
+        },
+        "unlock_cost": {
+          "scraps": 500
+        }
+      },
+      "ult_support": {
+        "name": "Squadron Call-In",
+        "description": "Summons 2 allied Gunner Drones that follow the player and attack nearby enemies for a duration.",
+        "mechanics": {
+          "cooldown": 90.0,
+          "unit_count": 2,
+          "duration": 20.0
+        },
+        "unlock_cost": {
+          "scraps": 800
+        },
+        "visuals": {
+          "model": "model_drone_support_ally",
+          "audio": {
+            "sfx_activate": "sfx_ult_support_warp_in"
+          }
+        }
+      },
+      "ult_repair": {
+        "name": "Nanite Cloud",
+        "description": "Releases a repair cloud that rapidly regenerates 50% of the helicopter's health over time.",
+        "mechanics": {
+          "cooldown": 120.0,
+          "heal_percent": 0.5,
+          "duration": 5.0
+        },
+        "unlock_cost": {
+          "scraps": 600
+        },
+        "visuals": {
+          "vfx": {
+            "cloud": "vfx_ult_nanite_cloud_green"
+          },
+          "audio": {
+            "sfx_activate": "sfx_ult_repair_hiss"
+          }
+        }
+      },
+      "ult_emp": {
+        "name": "Thunderclap EMP",
+        "visuals": {
+          "vfx": {
+            "burst": "vfx_ult_emp_shockwave_blue"
+          },
+          "audio": {
+            "sfx_activate": "sfx_ult_emp_thunderclap"
+          }
+        },
+        "description": "Detonates a powerful electromagnetic pulse that stuns all enemies on screen.",
+        "mechanics": {
+          "cooldown": 45.0,
+          "stun_duration": 5.0,
+          "screen_wide": true
+        },
+        "unlock_cost": {
+          "scraps": 400
+        }
+      },
+      "ult_shield": {
+        "name": "Aegis Field",
+        "description": "Projects an impenetrable energy shield that blocks all incoming damage.",
+        "mechanics": {
+          "cooldown": 60.0,
+          "invulnerability_duration": 6.0
+        },
+        "unlock_cost": {
+          "scraps": 700
+        },
+        "visuals": {
+          "vfx": {
+            "shield": "vfx_ult_shield_bubble_gold"
+          },
+          "audio": {
+            "sfx_activate": "sfx_ult_shield_deploy"
+          }
+        }
+      },
+      "ult_overdrive": {
+        "name": "System Overdrive",
+        "visuals": {
+          "vfx": {
+            "trail": "vfx_ult_overdrive_engine_flames"
+          },
+          "audio": {
+            "sfx_activate": "sfx_ult_overdrive_turbine_spin"
+          }
+        },
+        "description": "Overclocks all systems, doubling movement speed and fire rate for a short time.",
+        "mechanics": {
+          "cooldown": 60.0,
+          "duration": 10.0,
+          "speed_multiplier": 2.0,
+          "fire_rate_multiplier": 2.0
+        },
+        "unlock_cost": {
+          "scraps": 500
+        }
+      }
+    },
+    "helicopters": {
+      "heli_starter": {
+        "description": "Starting helicopter",
+        "name": "H11",
+        "visuals": {
+          "model": "model_heli_chassis_h11",
+          "audio": {
+            "sfx_engine": "sfx_engine_light_heli_loop"
+          }
+        },
+        "specs": {
+          "gun slots": "1",
+          "health": "100",
+          "speed": "20",
+          "ultimate": false
+        },
+        "default_unlocked": true,
+        "unlock_cost": null
+      },
+      "heli_upgrade_1a": {
+        "description": "1/2 first upgrade options",
+        "name": "H21",
+        "specs": {
+          "gun slots": "2",
+          "health": "150",
+          "speed": "100",
+          "ultimate": false
+        },
+        "default_unlocked": false,
+        "unlock_cost": {
+          "scraps": 200
+        }
+      },
+      "heli_upgrade_1b": {
+        "description": "2/2 first upgrade options",
+        "name": "H22",
+        "specs": {
+          "gun slots": "2",
+          "health": "100",
+          "speed": "150",
+          "ultimate": false
+        },
+        "default_unlocked": false,
+        "unlock_cost": {
+          "scraps": 200
+        }
+      },
+      "heli_upgrade_2a": {
+        "description": "1/3 final upgrade options",
+        "name": "H31",
+        "specs": {
+          "gun slots": "2",
+          "health": "250",
+          "speed": "150",
+          "ultimate": true
+        },
+        "default_unlocked": false,
+        "unlock_cost": {
+          "scraps": 500,
+          "intel": 1
+        }
+      },
+      "heli_upgrade_2b": {
+        "description": "2/3 final upgrade options",
+        "name": "H32",
+        "specs": {
+          "gun slots": "2",
+          "health": "150",
+          "speed": "250",
+          "ultimate": true
+        },
+        "default_unlocked": false,
+        "unlock_cost": {
+          "scraps": 500,
+          "intel": 1
+        }
+      },
+      "heli_upgrade_2c": {
+        "description": "3/3 final upgrade options",
+        "name": "H33",
+        "specs": {
+          "gun slots": "2",
+          "health": "200",
+          "speed": "200",
+          "ultimate": true
+        },
+        "default_unlocked": false,
+        "unlock_cost": {
+          "scraps": 500,
+          "intel": 1
+        }
+      }
+    },
+    "weapons": {
+      "weapon_machine_gun": {
+        "description": "Basic machine gun with medium rate of fire, medium damage and medium range",
+        "name": "Machine gun",
+        "specs": {
+          "damage": "10",
+          "range": "10",
+          "rate of fire": "10",
+          "targeting": "single target",
+          "type": "projectile"
+        },
+        "visuals": {
+          "model": "model_weapon_machine_gun_turret",
+          "audio": {
+            "sfx_shoot": "sfx_weapon_mg_fire_loop"
+          },
+          "vfx": {
+            "muzzle_flash": "vfx_muzzle_small_yellow",
+            "projectile": "vfx_proj_bullet_tracer"
+          }
+        },
+        "upgrades": {
+          "upgrade_rapid_fire": {
+            "name": "Rapid Fire Mechanism",
+            "description": "Increases rate of fire by 20%",
+            "stats_modifier": {
+              "rate of fire": "+2"
+            }
+          },
+          "upgrade_heavy_rounds": {
+            "name": "Heavy Caliber Rounds",
+            "description": "Increases damage but slightly reduces fire rate",
+            "stats_modifier": {
+              "damage": "+5",
+              "rate of fire": "-1"
+            }
+          },
+          "upgrade_scattered": {
+            "name": "Scattered Rounds",
+            "description": "Splits the main projectile into a unpredictable trio of bullets, covering a wider area.",
+            "mechanics": {
+              "projectile_count": 3,
+              "spread": 15
+            }
+          },
+          "upgrade_shotgun": {
+            "name": "Shotgun Conversion",
+            "description": "Modifies the firing mechanism to discharge a high-impact cluster of pellets at short range.",
+            "mechanics": {
+              "weapon_type_override": "shotgun"
+            }
+          },
+          "upgrade_piercing": {
+            "name": "Piercing Rounds",
+            "description": "Hardened alloy rounds capable of punching through multiple targets with diminishing returns.",
+            "mechanics": {
+              "piercing": true,
+              "damage_falloff": 0.2
+            }
+          },
+          "upgrade_chain": {
+            "name": "Chain Rounds",
+            "description": "Experimental ammo that arcs electricity to nearby enemies upon successful impact.",
+            "mechanics": {
+              "chain_on_hit": true
+            }
+          },
+          "upgrade_explosive": {
+            "name": "Micro-Explosives",
+            "description": "Rounds detonate on impact, dealing area damage to clustered hostiles.",
+            "mechanics": {
+              "area_of_effect": 1.5,
+              "aoe_damage_ratio": 0.5
+            }
+          },
+          "upgrade_ricochet": {
+            "name": "Reflective Plating",
+            "description": "Projectiles bounce off solid surfaces and enemy armor, extending their lethal trajectory.",
+            "mechanics": {
+              "ricochet_count": 2
+            }
+          },
+          "upgrade_spin_up": {
+            "name": "Rotary Barrel",
+            "description": "Fire rate accelerates continuously while holding down the trigger.",
+            "mechanics": {
+              "spin_up_time": 2.0,
+              "max_fire_rate_bonus": 10
+            }
+          },
+          "upgrade_execute": {
+            "name": "Finisher Rounds",
+            "description": "Significantly increases damage against enemies below 30% health.",
+            "mechanics": {
+              "execute_threshold": 0.3,
+              "execute_damage_multiplier": 2.0
+            }
+          }
+        },
+        "default_unlocked": true,
+        "unlock_cost": null
+      },
+      "weapon_rocket": {
+        "description": "Rocket launcher with low rate of fire, high damage and long range",
+        "name": "Rocket launcher",
+        "specs": {
+          "damage": "25",
+          "range": "20",
+          "rate of fire": "3",
+          "targeting": "area of effect",
+          "type": "projectile"
+        },
+        "visuals": {
+          "model": "model_weapon_rocket_pod_angular",
+          "audio": {
+            "sfx_shoot": "sfx_weapon_rocket_launch"
+          },
+          "vfx": {
+            "projectile": "vfx_proj_rocket_missile",
+            "impact": "vfx_explosion_medium_orange"
+          }
+        },
+        "upgrades": {
+          "upgrade_payload": {
+            "name": "High-Yield Payload",
+            "description": "Packed with concentrated explosives that increase blast radius and raw damage.",
+            "stats_modifier": {
+              "damage": "+10",
+              "blast_radius": "+20%"
+            }
+          },
+          "upgrade_homing": {
+            "name": "Titanium Guidance",
+            "description": "Rockets intelligently track the nearest enemy heat signature.",
+            "mechanics": {
+              "tracking_strength": 0.8
+            }
+          },
+          "upgrade_cluster": {
+            "name": "MIRV Warheads",
+            "description": "Rockets split into smaller sub-munitions upon detonation, blanketing the area.",
+            "mechanics": {
+              "cluster_count": 4,
+              "cluster_damage_ratio": 0.3
+            }
+          },
+          "upgrade_napalm": {
+            "name": "Inferno Gel",
+            "description": "Explosions leave behind burning pools that damage enemies over time.",
+            "mechanics": {
+              "hazard_type": "fire",
+              "hazard_duration": 3.0
+            }
+          },
+          "upgrade_salvo": {
+            "name": "Multi-Loader",
+            "description": "Fires a burst of 3 rockets in quick succession but with reduced accuracy.",
+            "mechanics": {
+              "burst_count": 3,
+              "accuracy_penalty": 20.0,
+              "fire_rate_modifier": 0.5
+            }
+          },
+          "upgrade_gravity": {
+            "name": "Singularity Generator",
+            "description": "Warheads create a temporary gravity well that pulls enemies in before exploding.",
+            "mechanics": {
+              "pull_radius": 5.0,
+              "pull_force": 10.0
+            }
+          },
+          "upgrade_nuke": {
+            "name": "Miniature Nuke",
+            "description": "Fires a massive, slow-moving warhead that deals catastrophic damage over a huge area.",
+            "mechanics": {
+              "blast_radius_multiplier": 3.0,
+              "damage_multiplier": 4.0,
+              "projectile_speed_multiplier": 0.3
+            }
+          },
+          "upgrade_accel": {
+            "name": "Ramjet Thrusters",
+            "description": "Rockets accelerate during flight, dealing bonus impact damage based on distance traveled.",
+            "mechanics": {
+              "acceleration": 20.0,
+              "distance_damage_scaling": true
+            }
+          }
+        },
+        "default_unlocked": false,
+        "unlock_cost": {
+          "scraps": 300
+        }
+      },
+      "weapon_laser": {
+        "description": "Laser gun with high rate of fire, low damage and long range",
+        "name": "Laser gun",
+        "specs": {
+          "damage": "10",
+          "range": "20",
+          "rate of fire": "20",
+          "targeting": "single target",
+          "type": "beam"
+        },
+        "visuals": {
+          "model": "model_weapon_laser_lens_array",
+          "audio": {
+            "sfx_shoot": "sfx_weapon_laser_hum_loop"
+          },
+          "vfx": {
+            "beam": "vfx_beam_laser_red_core"
+          }
+        },
+        "upgrades": {
+          "upgrade_lens": {
+            "name": "Crystal Focus",
+            "description": "Refines the beam through a synthetic crystal, increasing intensity and range.",
+            "stats_modifier": {
+              "damage": "+5",
+              "range": "+5"
+            }
+          },
+          "upgrade_chain": {
+            "name": "Prismatic Refraction",
+            "description": "The beam refracts upon hitting a target, chaining to nearby enemies.",
+            "mechanics": {
+              "chain_count": 2,
+              "chain_damage_ratio": 0.6
+            }
+          },
+          "upgrade_triple": {
+            "name": "Trident Emitter",
+            "description": "Splits the main beam into three parallel beams with slightly reduced individual power.",
+            "mechanics": {
+              "projectile_count": 3,
+              "damage_multiplier": 0.7
+            }
+          },
+          "upgrade_heat": {
+            "name": "Thermal Lance",
+            "description": "Super-heats the target, applying a stacking burn effect that melts armor.",
+            "mechanics": {
+              "status_effect": "burn",
+              "armor_melt_per_tick": 1.0
+            }
+          },
+          "upgrade_continuous": {
+            "name": "Flux Coil",
+            "description": "Allows for a continuous beam that ramps up damage the longer it is held on a target.",
+            "mechanics": {
+              "damage_ramp_per_second": 10.0,
+              "max_ramp_bonus": 50.0
+            }
+          },
+          "upgrade_slow": {
+            "name": "Cryo-Frequency",
+            "description": "Modulates the beam frequency to sap kinetic energy, slowing enemies significantly.",
+            "mechanics": {
+              "status_effect": "slow",
+              "slow_amount": 0.4
+            }
+          },
+          "upgrade_pierce": {
+            "name": "Spectral Wave",
+            "description": "Phases the beam allowing it to pass through obstacles and enemies.",
+            "mechanics": {
+              "wall_phasing": true,
+              "pierce_count": 999
+            }
+          },
+          "upgrade_reflection": {
+            "name": "Mirror Plating",
+            "description": "The beam reflects off walls and solid objects, extending its reach in confined spaces.",
+            "mechanics": {
+              "reflect_count": 3
+            }
+          }
+        },
+        "default_unlocked": false,
+        "unlock_cost": {
+          "scraps": 200
+        }
+      },
+      "weapon_shockwave": {
+        "description": "Shockwave generator with low rate of fire, medium damage and long range",
+        "name": "Shockwave generator",
+        "specs": {
+          "damage": "10",
+          "range": "20",
+          "rate of fire": "5",
+          "targeting": "area of effect",
+          "type": "wave"
+        },
+        "visuals": {
+          "model": "model_weapon_shockwave_dish",
+          "audio": {
+            "sfx_shoot": "sfx_weapon_shockwave_pulse_bass"
+          },
+          "vfx": {
+            "wave": "vfx_wave_distortion_ring"
+          }
+        },
+        "upgrades": {
+          "upgrade_frequency": {
+            "name": "Sonic Amplifier",
+            "description": "Increases wave frequency and intensity, disrupting enemies more effectively.",
+            "stats_modifier": {
+              "damage": "+5",
+              "rate of fire": "+1"
+            }
+          },
+          "upgrade_echo": {
+            "name": "Echo Ripples",
+            "description": "Primary shockwave is followed by two smaller ripples that deal reduced damage.",
+            "mechanics": {
+              "ripple_count": 2,
+              "ripple_damage_ratio": 0.4,
+              "ripple_delay": 0.5
+            }
+          },
+          "upgrade_return": {
+            "name": "Tidal Boomerang",
+            "description": "Shockwaves expand outwards and then contract back to the player, hitting enemies twice.",
+            "mechanics": {
+              "wave_return": true,
+              "return_damage_multiplier": 0.8
+            }
+          },
+          "upgrade_spin": {
+            "name": "Gyro-Blade Field",
+            "description": "Deploys a stationary, spinning sonic field that persists for a duration, damaging anything inside.",
+            "mechanics": {
+              "deployable_type": "sonic_field",
+              "duration": 5.0,
+              "tick_rate": 0.2
+            }
+          },
+          "upgrade_nova": {
+            "name": "Nova Eruptor",
+            "description": "Releases a massive, 360-degree blast that clears the immediate area but has a long cooldown.",
+            "mechanics": {
+              "angle_override": 360,
+              "range_multiplier": 2.0,
+              "cooldown_multiplier": 3.0
+            }
+          },
+          "upgrade_resonance": {
+            "name": "Resonance Frequency",
+            "description": "Enemies killed by shockwaves vibrate violently and explode, damaging nearby foes.",
+            "mechanics": {
+              "on_kill_effect": "explode",
+              "explosion_damage": 20,
+              "explosion_radius": 3.0
+            }
+          },
+          "upgrade_lance": {
+            "name": "Sonic Lance",
+            "description": "Focuses the shockwave into a narrow, high-intensity cone with extreme range.",
+            "mechanics": {
+              "cone_angle_override": 15,
+              "range_multiplier": 3.0,
+              "damage_multiplier": 2.5
+            }
+          },
+          "upgrade_confuse": {
+            "name": "Disorienting Pulse",
+            "description": "Scrambles enemy sensors, causing them to attack their allies for a short time.",
+            "mechanics": {
+              "status_effect": "confuse",
+              "duration": 4.0
+            }
+          }
+        },
+        "default_unlocked": false,
+        "unlock_cost": {
+          "scraps": 400
+        }
+      },
+      "weapon_grinder": {
+        "description": "Suspended industrial buzzsaws designed for close-combat shredding.",
+        "name": "Grinder Assembly",
+        "specs": {
+          "damage": "50",
+          "range": "3",
+          "rate of fire": "Continuous",
+          "targeting": "Conal / Melee",
+          "type": "melee"
+        },
+        "visuals": {
+          "model": "model_weapon_grinder_sawsws",
+          "audio": {
+            "sfx_shoot": "sfx_weapon_grinder_metal_screech_loop"
+          },
+          "vfx": {
+            "sparks": "vfx_impact_metal_sparks_shower"
+          }
+        },
+        "upgrades": {
+          "upgrade_arm": {
+            "name": "Hydraulic Extension",
+            "description": "Extends the mechanical arms, increasing the effective reach of the saws.",
+            "mechanics": {
+              "range_multiplier": 1.5
+            }
+          },
+          "upgrade_material": {
+            "name": "Diamond-Tipped Teeth",
+            "description": "Blades are reinforced to tear through enemy armor, ignoring a portion of damage reduction.",
+            "mechanics": {
+              "armor_penetration": 0.5
+            }
+          },
+          "upgrade_detach": {
+            "name": "Buzzsaw Launcher",
+            "description": "Allows firing the buzzsaws as spinning projectiles that travel a short distance.",
+            "mechanics": {
+              "ranged_mode_enabled": true,
+              "projectile_range": 15
+            }
+          },
+          "upgrade_magnet": {
+            "name": "Vortex Grinder",
+            "description": "Rapidly spinning blades create a vacuum that slowly pulls nearby enemies and loot.",
+            "mechanics": {
+              "pull_strength": 5.0,
+              "pull_range": 8.0
+            }
+          },
+          "upgrade_friction": {
+            "name": "Super-Heated Edge",
+            "description": "Friction generates intense heat, igniting enemies on contact.",
+            "mechanics": {
+              "fire_damage_per_second": 10,
+              "ignite_chance": 1.0
+            }
+          },
+          "upgrade_vampire": {
+            "name": "Siphon Gears",
+            "description": "Nanite coating repairs the helicopter hull for every enemy destroyed by the grinder.",
+            "mechanics": {
+              "life_leech_per_kill": 2
+            }
+          },
+          "upgrade_shield": {
+            "name": "Deflector Spin",
+            "description": "Saws spin at deflection speeds, knocking aside incoming small projectiles.",
+            "mechanics": {
+              "projectile_deflection_chance": 0.3
+            }
+          },
+          "upgrade_momentum": {
+            "name": "Gyroscopic Stabilizer",
+            "description": "Increases buzzsaw damage based on the helicopter's movement speed.",
+            "mechanics": {
+              "speed_to_damage_conversion": 0.5
+            }
+          },
+          "upgrade_dash": {
+            "name": "Rocket-Assist Lunge",
+            "description": "Performs a high-speed dash attack that deals massive contact damage.",
+            "mechanics": {
+              "dash_distance": 10,
+              "dash_damage": 150,
+              "cooldown": 5.0
+            }
+          }
+        },
+        "default_unlocked": false,
+        "unlock_cost": {
+          "scraps": 500,
+          "intel": 1
+        }
+      }
+    }
+  },
+  "enemies": {
+    "bosses": {
+      "boss_city": {
+        "name": "The Constructor",
+        "visuals": {
+          "model": "model_boss_constructor_mech",
+          "audio": {
+            "sfx_move": "sfx_boss_walker_step_heavy",
+            "sfx_attack": "sfx_boss_turret_fire"
+          },
+          "vfx": {
+            "spawn": "vfx_boss_teleport_distortion"
+          }
+        },
+        "description": "A massive, quadrupedal construction mech that builds its own cover and turrets.",
+        "rewards": [
+          "scraps",
+          "intel",
+          "upgrade_choices"
+        ],
+        "stats": {
+          "health": 1200,
+          "damage": 40
+        },
+        "mechanics": {
+          "phase_1": "Builder: Moves slowly, constructs 'Blast Walls' that block fire, summons Scout Drones.",
+          "phase_2": "Fortress: Roots in center, deploys dual Auto-Turrets on back.",
+          "ultimate": "Urban Renewal: Smashes ground to shatter all Blast Walls, sending shrapnel in all directions."
+        }
+      },
+      "boss_mountain": {
+        "name": "Storm Bird",
+        "visuals": {
+          "model": "model_boss_storm_bird_plane",
+          "audio": {
+            "sfx_move": "sfx_boss_jet_engine_pass",
+            "sfx_attack": "sfx_boss_lightning_strike"
+          },
+          "vfx": {
+            "storm": "vfx_boss_cloud_aura"
+          }
+        },
+        "description": "A sleek, high-altitude stealth bomber drone controlling the weather.",
+        "rewards": [
+          "scraps",
+          "intel",
+          "upgrade_choices"
+        ],
+        "stats": {
+          "health": 1800,
+          "damage": 60
+        },
+        "mechanics": {
+          "phase_1": "Dogfight: High speed strafing runs with machine guns. Immune to slow projectiles.",
+          "phase_2": "Thunderhead: Ascends to high altitude (invulnerable), calling down targeted lightning strikes.",
+          "ultimate": "Downdraft: Creates massive wind pressure pushing player into hazard zones."
+        }
+      },
+      "boss_desert": {
+        "name": "Mirage Core",
+        "visuals": {
+          "model": "model_boss_mirage_core_crystal",
+          "audio": {
+            "sfx_move": "sfx_boss_crystal_hum",
+            "sfx_attack": "sfx_boss_laser_charge"
+          },
+          "vfx": {
+            "hologram": "vfx_boss_holo_glitch"
+          }
+        },
+        "description": "A hovering crystalline core protected by shifting sand shields and holograms.",
+        "rewards": [
+          "scraps",
+          "intel",
+          "upgrade_choices"
+        ],
+        "stats": {
+          "health": 2500,
+          "damage": 90
+        },
+        "mechanics": {
+          "phase_1": "Refraction: Creates 2 explosive holographic copies. Real core shimmers slightly.",
+          "phase_2": "Sandstorm: Reduces vision radius, spawns Elite Mirage Drones to ambush.",
+          "ultimate": "Solar Lens: Focuses a giant tracking laser that turns sand into glass (permanent slow zone)."
+        }
+      }
+    },
+    "mobs": {
+      "mob_drone_scout": {
+        "area": [
+          "biome_city",
+          "biome_mountains"
+        ],
+        "attacks": {
+          "main": "Light Autocannon: Low caliber rounds with slow fire rate",
+          "secondary": "-",
+          "ultimate": false
+        },
+        "behavior": [
+          "Patrols designated sector in erratic pattern",
+          "Pursues player aggressively upon detection",
+          "Maintains short-range firing distance",
+          "Seeks cover behind Tank Drones if available"
+        ],
+        "description": "Lightweight reconnaissance unit. Weak but annoying in groups.",
+        "name": "Scout Drone",
+        "visuals": {
+          "model": "model_mob_drone_scout",
+          "audio": {
+            "sfx_move": "sfx_mob_hover_light"
+          }
+        },
+        "speed": "10",
+        "elite": false,
+        "stats": {
+          "health": 30,
+          "damage": 5
+        }
+      },
+      "mob_drone_tank": {
+        "area": [
+          "biome_mountains",
+          "biome_desert"
+        ],
+        "attacks": {
+          "main": "Heavy Repeater: High rate of fire, medium damage suppression",
+          "secondary": "-",
+          "ultimate": false
+        },
+        "behavior": [
+          "Patrols slowly, acting as a mobile anchor",
+          "Engages immediately upon detecting threat",
+          "Interposes itself between player and allied drones to soak damage"
+        ],
+        "description": "Heavily armored hex-copter designed for frontline durability.",
+        "name": "Tank Drone",
+        "visuals": {
+          "model": "model_mob_drone_tank",
+          "audio": {
+            "sfx_move": "sfx_mob_hover_heavy"
+          }
+        },
+        "speed": "5",
+        "elite": false,
+        "stats": {
+          "health": 120,
+          "damage": 10
+        }
+      },
+      "mob_drone_sniper": {
+        "area": [
+          "biome_city",
+          "biome_mountains",
+          "biome_desert"
+        ],
+        "attacks": {
+          "main": "Rail Rifle: Charged shot with extreme range and high piercing damage",
+          "secondary": "-",
+          "ultimate": false
+        },
+        "behavior": [
+          "Holds position at maximum range",
+          "Charges shot while stationary; interrupts charge if damaged",
+          "Flees to maintain distance if player closes in"
+        ],
+        "description": "Precision combat unit optimized for long-range engagement.",
+        "name": "Sniper Drone",
+        "visuals": {
+          "model": "model_mob_drone_sniper",
+          "audio": {
+            "sfx_move": "sfx_mob_hover_silent"
+          }
+        },
+        "elite": false,
+        "stats": {
+          "health": 40,
+          "damage": 20
+        }
+      },
+      "mob_drone_stun": {
+        "area": [
+          "biome_mountains",
+          "biome_desert"
+        ],
+        "attacks": {
+          "main": "EMP Blaster: Low damage shot that briefly disables player controls",
+          "secondary": "-",
+          "ultimate": false
+        },
+        "behavior": [
+          "Flanks player to attack from blind spots",
+          "Retreats immediately after firing to recharge",
+          "Coordinates with damage dealers to lock down targets"
+        ],
+        "description": "Disruptor unit equipped with electromagnetic weaponry.",
+        "name": "Stun Drone",
+        "visuals": {
+          "model": "model_mob_drone_stun",
+          "audio": {
+            "sfx_move": "sfx_mob_electric_hum"
+          }
+        },
+        "elite": false,
+        "stats": {
+          "health": 50,
+          "damage": 5
+        }
+      },
+      "mob_drone_support": {
+        "area": [
+          "biome_city",
+          "biome_mountains",
+          "biome_desert"
+        ],
+        "attacks": {
+          "main": "Repair Beam: Heals nearby allies over time",
+          "secondary": "Shield Generator: Projects a temporary shield on damaged allies",
+          "ultimate": false
+        },
+        "behavior": [
+          "Avoids the player and stays behind other hostile drones",
+          "Prioritizes following elite mobs or bosses if present",
+          "Flees actively if it is the last unit remaining"
+        ],
+        "description": "Utility drone that keeps other enemies alive",
+        "name": "Support Drone",
+        "visuals": {
+          "model": "model_mob_drone_support",
+          "audio": {
+            "sfx_move": "sfx_mob_repair_hum"
+          }
+        },
+        "speed": "12",
+        "elite": false,
+        "stats": {
+          "health": 60,
+          "damage": 0
+        }
+      },
+      "mob_elite_hunter": {
+        "area": [
+          "biome_mountains",
+          "biome_desert"
+        ],
+        "attacks": {
+          "main": "Homing missiles with high tracking but slow speed",
+          "secondary": "Charge attack that deals massive contact damage",
+          "ultimate": false
+        },
+        "behavior": [
+          "Uses cover in mountains to break line of sight",
+          "Aggressively closes distance to use charge attack",
+          "Retreats briefly when taking heavy damage"
+        ],
+        "description": "Elite heavy drone with reinforced plating",
+        "name": "Hunter Drone (Elite)",
+        "visuals": {
+          "model": "model_mob_elite_hunter",
+          "audio": {
+            "sfx_move": "sfx_mob_elite_engine_roar"
+          }
+        },
+        "speed": "12",
+        "elite": true,
+        "stats": {
+          "health": 300,
+          "damage": 25
+        }
+      },
+      "mob_elite_mirage": {
+        "area": [
+          "biome_desert"
+        ],
+        "attacks": {
+          "main": "High-intensity railgun beam that requires charging",
+          "secondary": "Deploy jamming field that disables player radar",
+          "ultimate": false
+        },
+        "behavior": [
+          "Uses active camouflage to appear semi-transparent",
+          "Relocates constantly after firing to prevent locking on",
+          "Only decloaks fully when charging main attack"
+        ],
+        "description": "Elite stealth drone specialized in ambushes",
+        "name": "Mirage Drone (Elite)",
+        "visuals": {
+          "model": "model_mob_elite_mirage",
+          "audio": {
+            "sfx_move": "sfx_mob_stealth_shimmer"
+          }
+        },
+        "speed": "15",
+        "elite": true,
+        "stats": {
+          "health": 250,
+          "damage": 35
+        }
+      },
+      "mob_elite_nemesis": {
+        "area": [
+          "biome_city",
+          "biome_mountains",
+          "biome_desert"
+        ],
+        "spawn_chance": 0.1,
+        "attacks": {
+          "main": "Omni-directional laser gatling gun",
+          "secondary": "Cluster missile barrage covering a wide area",
+          "ultimate": true
+        },
+        "behavior": [
+          "Hunts the player across the map regardless of distance",
+          "Adapts resistance to the weapon type hurting it most",
+          "Enters a 'Berserk Mode' (Ultimate) at 30% HP, doubling speed and fire rate"
+        ],
+        "description": "Ultra-rare prototype hunter-killer. Extremely dangerous.",
+        "name": "Nemesis Prototype",
+        "visuals": {
+          "model": "model_mob_elite_nemesis",
+          "audio": {
+            "sfx_move": "sfx_mob_nemesis_bass_thrum"
+          }
+        },
+        "speed": "18",
+        "elite": true,
+        "stats": {
+          "health": 800,
+          "damage": 50
+        },
+        "rewards": [
+          "random_weapon_upgrade"
+        ]
+      }
+    }
+  }
+}

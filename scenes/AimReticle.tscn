@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_red"]
+shading_mode = 0
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="TorusMesh" id="TorusMesh_circle"]
+material = SubResource("StandardMaterial3D_red")
+inner_radius = 0.45
+outer_radius = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_horiz"]
+material = SubResource("StandardMaterial3D_red")
+size = Vector3(1.2, 0.05, 0.05)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vert"]
+material = SubResource("StandardMaterial3D_red")
+size = Vector3(0.05, 0.05, 1.2)
+
+[node name="AimReticle" type="Node3D"]
+
+[node name="Circle" type="MeshInstance3D" parent="."]
+mesh = SubResource("TorusMesh_circle")
+
+[node name="Horizontal" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_horiz")
+
+[node name="Vertical" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_vert")
