@@ -28,14 +28,15 @@ func fire():
 	
 	# Move spawn point slightly forward so bullets aren't inside the heli
 	#Basis Z is backwards, so we use -transform.basis.z
-	var forward_offset = -global_transform.basis.z * 3.0 
+	var forward_offset = -global_transform.basis.z * 1.5 
 	spawn_pos += forward_offset
 	
-	var _spawn_rot = global_rotation
+	var spawn_rot = global_rotation
 	
 	# Add to world (GameWorld or just root)
 	get_tree().root.add_child(projectile)
 	projectile.global_position = spawn_pos
+	projectile.global_rotation = spawn_rot # Align projectile with firing direction
 	
 	# Calculate velocity based on weapon forward vector
 	var forward = -global_transform.basis.z

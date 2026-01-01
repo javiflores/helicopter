@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_water"]
+albedo_color = Color(0.1, 0.4, 0.8, 0.8)
+roughness = 0.1
+metallic = 0.5
+transparency = 1
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_river"]
+material = SubResource("StandardMaterial3D_water")
+size = Vector2(10, 50)
+
+[node name="River" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
+mesh = SubResource("PlaneMesh_river")

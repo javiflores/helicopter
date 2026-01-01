@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rock"]
+albedo_color = Color(0.4, 0.38, 0.35, 1)
+roughness = 1.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_rock1"]
+material = SubResource("StandardMaterial3D_rock")
+radial_segments = 8
+rings = 4
+
+[sub_resource type="SphereMesh" id="SphereMesh_rock2"]
+material = SubResource("StandardMaterial3D_rock")
+radial_segments = 6
+rings = 3
+
+[node name="Rock" type="Node3D"]
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Mesh1" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1.2, 0, 0, 0)
+mesh = SubResource("SphereMesh_rock1")
+
+[node name="Mesh2" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0.5, -0.2, 0.3)
+mesh = SubResource("SphereMesh_rock2")

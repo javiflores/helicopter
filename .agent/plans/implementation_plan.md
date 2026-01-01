@@ -35,7 +35,7 @@
 ## 4. Content: Arsenal (Blueprint Sec 6)
 - [x] **Helicopters**
     - [x] H11 Starter (Stats implemented).
-    - [x] Visual Replacement (FBX model integrated).
+    - [x] Visual Replacement (Integrated Military_Helicopter02 FBX).
     - [x] Rotor Animations (Custom pivots for center-axis rotation).
 - [x] **Weapons**
     - [x] Machine Gun (Projectile, single target).
@@ -52,6 +52,8 @@
     - [x] Mob: Turret (Stationary Defense).
     - [x] POIs (Rescue & Destroy Objectives).
     - [x] Boss: The Constructor (City Boss, 2 Phases).
+    - [x] Grounding: All elements flush with ground (Y=0).
+    - [x] Flight Fix: Removed environment collisions (Hills/Rocks/Trees) for smooth movement.
 
 ## 6. UI (Blueprint Sec 7)
 - [x] **HUD**

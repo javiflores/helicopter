@@ -342,7 +342,7 @@ func handle_combat(_delta):
 			
 func setup_visuals():
 	# Load actual Mesh
-	var heli_scene = load("res://resources/heli/Military_Helicopter01.fbx")
+	var heli_scene = load("res://assets/heli/Military_Helicopter02.fbx")
 	if heli_scene:
 		var visual_node = heli_scene.instantiate()
 		visual_node.name = "VisualModel"
