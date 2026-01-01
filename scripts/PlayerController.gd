@@ -234,6 +234,10 @@ func collect_loot(type: int, amount: float):
 			print("Healed: ", amount, " HP: ", health)
 
 func trigger_upgrade():
+	# Prevent multiple overlapping screens
+	if get_tree().root.find_child("UpgradeScreen", true, false):
+		return
+		
 	var upgrade_scene = load("res://scenes/UI/UpgradeScreen.tscn")
 	if upgrade_scene:
 		var upgrade_ui = upgrade_scene.instantiate()

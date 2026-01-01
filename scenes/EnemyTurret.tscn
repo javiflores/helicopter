@@ -1,24 +1,11 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=5 format=3 uid="uid://bx6jjec1ewtpf"]
 
-[ext_resource type="Script" path="res://scripts/EnemyTurret.gd" id="1_turret"]
+[ext_resource type="Script" uid="uid://bjsnuwhkeqmcl" path="res://scripts/EnemyTurret.gd" id="1_turret"]
+[ext_resource type="PackedScene" uid="uid://bp3bnjpq6na2i" path="res://assets/enemies/scifi-turret-base-circle-big.fbx" id="2_base"]
+[ext_resource type="PackedScene" uid="uid://dwjugg203xc0x" path="res://assets/enemies/scifi-turret-head-artillery-big.fbx" id="3_head"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_turret"]
-height = 2.0
-radius = 0.8
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_turret"]
-albedo_color = Color(0.4, 0.4, 0.4, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_body"]
-material = SubResource("StandardMaterial3D_turret")
-size = Vector3(1, 1.5, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_head"]
-albedo_color = Color(0.8, 0.2, 0.2, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_head"]
-material = SubResource("StandardMaterial3D_head")
-size = Vector3(0.6, 0.4, 1.2)
+radius = 1.2
 
 [node name="EnemyTurret" type="StaticBody3D"]
 collision_layer = 4
@@ -29,10 +16,13 @@ script = ExtResource("1_turret")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CylinderShape3D_turret")
 
-[node name="Body" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
-mesh = SubResource("BoxMesh_body")
+[node name="Body" type="Node3D" parent="."]
 
-[node name="Head" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
-mesh = SubResource("BoxMesh_head")
+[node name="scifi-turret-base-circle-big" parent="Body" instance=ExtResource("2_base")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+
+[node name="Head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+
+[node name="scifi-turret-head-artillery-big" parent="Head" instance=ExtResource("3_head")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, -0.8105296, 0)

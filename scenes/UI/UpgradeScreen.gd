@@ -25,8 +25,12 @@ func setup(player):
 			var opt = current_options[i]
 			btn.text = opt.name + "\n" + opt.description
 			btn.visible = true
-			if not btn.pressed.is_connected(_on_upgrade_selected):
-				btn.pressed.connect(_on_upgrade_selected.bind(opt))
+			
+			# Clean up old connections to prevent multiple triggers
+			for sig in btn.pressed.get_connections():
+				btn.pressed.disconnect(sig.callable)
+				
+			btn.pressed.connect(_on_upgrade_selected.bind(opt))
 		else:
 			btn.visible = false
 	
@@ -73,10 +77,7 @@ func _on_upgrade_selected(upgrade):
 	get_tree().paused = false
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	
-	# Queue free or just keep hidden? 
-	# Let's keep it in HUD or Gamelevel
-	# If instantiated, queue_free()
-	# queue_free()
+	queue_free()
 
 func apply_upgrade_to_player(upgrade):
 	if upgrade.has("stats_modifier"):

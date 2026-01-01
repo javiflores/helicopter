@@ -17,9 +17,12 @@ func _ready():
 	find_player()
 	
 	# Connect to GameManager for objective updates
-	GameManager.objective_updated.connect(_on_objective_updated)
-	GameManager.boss_activated.connect(_on_boss_activated)
-	GameManager.boss_health_updated.connect(_on_boss_health_updated)
+	if not GameManager.objective_updated.is_connected(_on_objective_updated):
+		GameManager.objective_updated.connect(_on_objective_updated)
+	if not GameManager.boss_activated.is_connected(_on_boss_activated):
+		GameManager.boss_activated.connect(_on_boss_activated)
+	if not GameManager.boss_health_updated.is_connected(_on_boss_health_updated):
+		GameManager.boss_health_updated.connect(_on_boss_health_updated)
 	
 	# Initial update for any already registered
 	_on_objective_updated(GameManager.completed_objectives, GameManager.total_objectives)

@@ -27,17 +27,20 @@ func _physics_process(delta):
 		target = null
 		return
 		
-	# Look at player (smoothly)
-	var target_pos = target.global_position
-	target_pos.y = global_position.y # Keep horizontal
-	
-	# Rotate head/barrel towards player
-	# Assuming there's a node called "Head" or we rotate the whole thing if it's just a turret
+	# Rotate head/barrel towards player (smoothly)
 	var head = get_node_or_null("Head")
 	if head:
-		head.look_at(target.global_position, Vector3.UP)
-	else:
-		look_at(target.global_position, Vector3.UP)
+		var target_dir = (target.global_position - head.global_position).normalized()
+		target_dir.y = 0 # Keep purely horizontal for the head pivot
+		
+		# Smooth Slerp the head rotation
+		var current_quat = head.global_transform.basis.get_rotation_quaternion()
+		var target_basis = Basis.looking_at(target_dir, Vector3.UP)
+		var target_quat = target_basis.get_rotation_quaternion()
+		
+		var smoothing = 5.0 # Slow enough to be dodgeable
+		var new_quat = current_quat.slerp(target_quat, delta * smoothing)
+		head.global_basis = Basis(new_quat)
 	
 	# Fire logic
 	fire_timer -= delta
@@ -51,23 +54,25 @@ func find_target():
 		target = players[0]
 
 func fire():
-	if not projectile_scene: return
+	if not projectile_scene or not target: return
 	
 	var proj = projectile_scene.instantiate()
 	get_tree().root.add_child(proj)
 	
-	# Spawn at head position or slightly forward
+	# Spawn at head position, moved forward along its facing direction
 	var head = get_node_or_null("Head")
 	var spawn_pos = global_position + Vector3.UP * 1.5
+	var fire_dir = (target.global_position - spawn_pos).normalized()
+	
 	if head:
-		spawn_pos = head.global_position
+		# Use head's forward vector (-Z)
+		var forward = -head.global_transform.basis.z
+		spawn_pos = head.global_position + forward * 2.5 # Offset forward from barrel
+		fire_dir = forward
 		
 	proj.global_position = spawn_pos
 	proj.configure(damage, detection_range, projectile_speed, self)
-	
-	# Calculate direction
-	var dir = (target.global_position - spawn_pos).normalized()
-	proj.velocity = dir * projectile_speed
+	proj.velocity = fire_dir * projectile_speed
 
 func take_damage(amount):
 	# Turrets can be destroyed?

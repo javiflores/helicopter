@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://player12345" path="res://scenes/Player.tscn" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://enemy12345" path="res://scenes/Enemy.tscn" id="2_enemy"]
 [ext_resource type="Script" uid="uid://cxm1fir862rat" path="res://scripts/CameraFollow.gd" id="3_camera_script"]
-[ext_resource type="PackedScene" uid="uid://hud12345" path="res://scenes/UI/HUD.tscn" id="4_hud"]
+[ext_resource type="PackedScene" path="res://scenes/UI/HUD.tscn" id="4_hud"]
 [ext_resource type="PackedScene" uid="uid://ce7i3thjhu8ee" path="res://scenes/UI/GameOverScreen.tscn" id="5_gameover"]
 [ext_resource type="Script" uid="uid://dph764u0k4x4u" path="res://scripts/GameLevel.gd" id="6_level_script"]
 [ext_resource type="Script" uid="uid://yxcha6eh23lp" path="res://scripts/DungeonGenerator.gd" id="7_generator_script"]

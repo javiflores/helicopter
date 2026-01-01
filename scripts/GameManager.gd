@@ -10,6 +10,12 @@ signal all_objectives_completed
 signal boss_activated(boss_node)
 signal boss_health_updated(current, max)
 
+func reset_objectives():
+	total_objectives = 0
+	completed_objectives = 0
+	objective_updated.emit(0, 0)
+	print("Objectives reset.")
+
 func register_objective():
 	total_objectives += 1
 	objective_updated.emit(completed_objectives, total_objectives)
@@ -29,6 +35,7 @@ func notify_boss_activated(boss):
 	boss_activated.emit(boss)
 
 func _ready():
+	reset_objectives()
 	load_config()
 	setup_default_inputs()
 	print_game_info()

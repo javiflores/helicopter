@@ -8,10 +8,14 @@ func _ready():
 	if player:
 		player.player_died.connect(_on_player_died)
 	
+	# Reset state in singleton
+	GameManager.reset_objectives()
+	
 	# Start with City Biome
 	dungeon_generator.generate_dungeon("biome_city")
 	
-	GameManager.all_objectives_completed.connect(_on_all_objectives_completed)
+	if not GameManager.all_objectives_completed.is_connected(_on_all_objectives_completed):
+		GameManager.all_objectives_completed.connect(_on_all_objectives_completed)
 
 func _on_all_objectives_completed():
 	print("LEVEL: Spawning Boss!")

@@ -20,12 +20,35 @@ func _ready():
 	if GameManager.has_method("register_objective"):
 		GameManager.register_objective()
 	
-	# Rotate radar mesh slightly for effect if it's there
-	var dish = get_node_or_null("RadarDish")
-	if dish:
-		var tween = create_tween()
-		tween.set_loops()
-		tween.tween_property(dish, "rotation:y", PI * 2, 4.0).as_relative()
+	# Find Dish/Head dynamically in the hierarchy
+	var visual_model = get_node_or_null("VisualModel")
+	if visual_model:
+		# Use a more specific search priority
+		var dish = find_node_by_pattern(visual_model, ["dish", "head"])
+		if not dish:
+			dish = find_node_by_pattern(visual_model, ["rotor", "satelit"])
+			
+		if dish:
+			var tween = create_tween()
+			tween.set_loops()
+			# Some models need rotation on different axes, Y is common for dishes
+			tween.tween_property(dish, "rotation:y", PI * 2, 4.0).as_relative()
+			print("Found and Rotating: ", dish.name)
+
+func print_tree_recursive(node: Node, indent: String = ""):
+	print(indent + node.name + " (" + node.get_class() + ")")
+	for child in node.get_children():
+		print_tree_recursive(child, indent + "  ")
+
+func find_node_by_pattern(node: Node, patterns: Array) -> Node:
+	var node_name = node.name.to_lower()
+	for p in patterns:
+		if p in node_name:
+			return node
+	for child in node.get_children():
+		var res = find_node_by_pattern(child, patterns)
+		if res: return res
+	return null
 
 func take_damage(amount: float):
 	if is_destroyed: return
@@ -44,13 +67,21 @@ func update_health_bar():
 	var progress = clamp(current_health / max_health, 0.0, 1.0)
 	$HealthBar/BarFill.scale.x = progress
 	
-	# Flash the radar building?
-	var mat = $RadarBuilding.get_active_material(0)
-	if mat:
-		mat.emission_enabled = true
-		mat.emission = Color.RED
-		await get_tree().create_timer(0.1).timeout
-		mat.emission_enabled = false
+	# Flash any mesh found in VisualModel
+	var visual_model = get_node_or_null("VisualModel")
+	if visual_model:
+		_flash_meshes_recursive(visual_model)
+
+func _flash_meshes_recursive(node: Node):
+	if node is MeshInstance3D:
+		var mat = node.get_active_material(0)
+		if mat:
+			mat.emission_enabled = true
+			mat.emission = Color.RED
+			# Simple way to flash without awaiting everything (might be messy with multiple)
+			# Better: use a timer or tween
+	for child in node.get_children():
+		_flash_meshes_recursive(child)
 
 func trigger_ambush():
 	ambush_triggered = true
@@ -72,13 +103,9 @@ func complete_destruction():
 	$HealthBar.visible = false
 	
 	# Visual feedback: Turn grey/black
-	var mat = $RadarBuilding.get_active_material(0)
-	if mat:
-		mat.albedo_color = Color.DARK_SLATE_GRAY
-	
-	var dish_mat = $RadarDish.get_active_material(0)
-	if dish_mat:
-		dish_mat.albedo_color = Color.BLACK
+	var visual_model = get_node_or_null("VisualModel")
+	if visual_model:
+		_set_meshes_color_recursive(visual_model, Color.DARK_SLATE_GRAY)
 		
 	# Spawn explosion effect if we had one
 	print("Radar Destroyed!")
@@ -97,6 +124,19 @@ func complete_destruction():
 		if child.is_in_group("enemy") and child.has_method("find_target"):
 			child.set_physics_process(false)
 			child.target = null
+
+func _set_meshes_color_recursive(node: Node, color: Color):
+	if node is MeshInstance3D:
+		var mat = node.get_active_material(0)
+		if mat:
+			# Duplicate to avoid affecting other shared instances
+			if not mat.resource_name.contains("unique"):
+				mat = mat.duplicate()
+				mat.resource_name += "_unique"
+				node.set_surface_override_material(0, mat)
+			mat.albedo_color = color
+	for child in node.get_children():
+		_set_meshes_color_recursive(child, color)
 
 func _on_area_3d_body_entered(body):
 	if body.is_in_group("player") and not ambush_triggered:
