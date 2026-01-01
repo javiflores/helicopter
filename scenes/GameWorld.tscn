@@ -8,13 +8,13 @@
 [ext_resource type="Script" uid="uid://dph764u0k4x4u" path="res://scripts/GameLevel.gd" id="6_level_script"]
 [ext_resource type="Script" uid="uid://yxcha6eh23lp" path="res://scripts/DungeonGenerator.gd" id="7_generator_script"]
 [ext_resource type="PackedScene" uid="uid://room12345" path="res://scenes/Room.tscn" id="8_room"]
+[ext_resource type="PackedScene" path="res://scenes/Environment.tscn" id="9_env"]
+
 
 [node name="GameWorld" type="Node3D"]
 script = ExtResource("6_level_script")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 10, 0)
-shadow_enabled = true
+[node name="Environment" parent="." instance=ExtResource("9_env")]
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.70710677, -0.66446316, 0.24184483, 0, 0.34202024, 0.93969285, -0.70710677, -0.66446316, 0.24184483, 0, 0, 0)
@@ -31,6 +31,7 @@ offset = Vector3(5, 20, 5)
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
 
 [node name="DungeonGenerator" type="Node3D" parent="."]
 script = ExtResource("7_generator_script")

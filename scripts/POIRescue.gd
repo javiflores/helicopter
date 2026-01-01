@@ -108,17 +108,8 @@ func complete_rescue():
 	current_time = rescue_duration
 	$Label3D.text = "SAVED!"
 	
-	# Fix: Access material correctly
-	var mat = $MeshInstance3D.get_active_material(0)
-	if mat:
-		mat.albedo_color = Color.GREEN
-	else:
-		# If no active material found (e.g. on mesh resource), try getting it from mesh
-		var mesh = $MeshInstance3D.mesh
-		if mesh and mesh.material:
-			# Duplicate to avoid affecting other instances sharing the resource
-			$MeshInstance3D.mesh.material = mesh.material.duplicate()
-			$MeshInstance3D.mesh.material.albedo_color = Color.GREEN
+	# Turn everything green recursively
+	_set_meshes_color_recursive(self, Color.GREEN)
 	
 	if player_ref:
 		if player_ref.has_method("collect_loot"):
@@ -128,7 +119,15 @@ func complete_rescue():
 	rescue_completed.emit()
 	if GameManager.has_method("complete_objective"):
 		GameManager.complete_objective()
-	
-	# Optional: Fly away animation or disappear
-	# await get_tree().create_timer(1.0).timeout
-	# queue_free()
+
+func _set_meshes_color_recursive(node: Node, color: Color):
+	if node is MeshInstance3D:
+		var mat = node.get_active_material(0)
+		if mat:
+			if not mat.resource_name.contains("unique"):
+				mat = mat.duplicate()
+				mat.resource_name += "_unique"
+				node.set_surface_override_material(0, mat)
+			mat.albedo_color = color
+	for child in node.get_children():
+		_set_meshes_color_recursive(child, color)

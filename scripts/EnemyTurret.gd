@@ -4,7 +4,9 @@ extends StaticBody3D
 @export var damage: float = 10.0
 @export var detection_range: float = 25.0
 @export var projectile_speed: float = 25.0
+@export var max_health: float = 100.0
 
+var health: float = 100.0
 var target = null
 var fire_timer: float = 0.0
 
@@ -12,6 +14,7 @@ var projectile_scene = preload("res://scenes/Projectile.tscn")
 
 func _ready():
 	add_to_group("enemy")
+	health = max_health
 	# Basic Mesh Setup if not in tscn
 	if get_child_count() == 0:
 		_setup_placeholder_visuals()
@@ -74,11 +77,38 @@ func fire():
 	proj.configure(damage, detection_range, projectile_speed, self)
 	proj.velocity = fire_dir * projectile_speed
 
-func take_damage(amount):
-	# Turrets can be destroyed?
-	# In POIDestroy, maybe the turrets are separate destructible entities
-	# For now, let's give them health
-	pass
+func take_damage(amount: float):
+	health -= amount
+	_flash_visuals_recursive(self)
+	
+	if health <= 0:
+		die()
+
+func die():
+	print("Turret destroyed!")
+	# Optional: spawn explosion
+	queue_free()
+
+func _flash_visuals_recursive(node: Node):
+	if node is MeshInstance3D:
+		var mat = node.get_active_material(0)
+		if mat:
+			if not mat.resource_name.contains("unique"):
+				mat = mat.duplicate()
+				mat.resource_name += "_unique"
+				node.set_surface_override_material(0, mat)
+			
+			mat.emission_enabled = true
+			mat.emission = Color.RED
+			mat.emission_energy_multiplier = 3.0
+			
+			var flash = create_tween()
+			flash.tween_property(mat, "emission_energy_multiplier", 0.0, 0.15)
+			flash.finished.connect(func(): if mat: mat.emission_enabled = false)
+			
+	for child in node.get_children():
+		_flash_visuals_recursive(child)
+
 
 func _setup_placeholder_visuals():
 	var body = MeshInstance3D.new()

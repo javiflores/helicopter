@@ -6,6 +6,7 @@ extends Node3D
 var current_health: float = 0.0
 var is_destroyed: bool = false
 var ambush_triggered: bool = false
+var rotation_tween: Tween = null
 
 var enemy_scene = preload("res://scenes/Enemy.tscn")
 
@@ -23,16 +24,26 @@ func _ready():
 	# Find Dish/Head dynamically in the hierarchy
 	var visual_model = get_node_or_null("VisualModel")
 	if visual_model:
-		# Use a more specific search priority
-		var dish = find_node_by_pattern(visual_model, ["dish", "head"])
+		var root = visual_model
+		if visual_model.get_child_count() > 0:
+			root = visual_model.get_child(0) # often FBX importer adds a wrapper
+			
+		# Look for children first to avoid rotating the entire root
+		var dish = null
+		for child in root.get_children():
+			dish = find_node_by_pattern(child, ["dish", "head"])
+			if dish: break
+			
 		if not dish:
-			dish = find_node_by_pattern(visual_model, ["rotor", "satelit"])
+			# Fallback but still avoid the topmost visual node
+			for child in root.get_children():
+				dish = find_node_by_pattern(child, ["rotor", "satelit", "antenna"])
+				if dish: break
 			
 		if dish:
-			var tween = create_tween()
-			tween.set_loops()
-			# Some models need rotation on different axes, Y is common for dishes
-			tween.tween_property(dish, "rotation:y", PI * 2, 4.0).as_relative()
+			rotation_tween = create_tween()
+			rotation_tween.set_loops()
+			rotation_tween.tween_property(dish, "rotation:y", PI * 2, 4.0).as_relative()
 			print("Found and Rotating: ", dish.name)
 
 func print_tree_recursive(node: Node, indent: String = ""):
@@ -76,10 +87,19 @@ func _flash_meshes_recursive(node: Node):
 	if node is MeshInstance3D:
 		var mat = node.get_active_material(0)
 		if mat:
+			if not mat.resource_name.contains("unique"):
+				mat = mat.duplicate()
+				mat.resource_name += "_unique"
+				node.set_surface_override_material(0, mat)
+			
 			mat.emission_enabled = true
 			mat.emission = Color.RED
-			# Simple way to flash without awaiting everything (might be messy with multiple)
-			# Better: use a timer or tween
+			mat.emission_energy_multiplier = 2.0
+			
+			# Use a one-shot tween to flash and then turn off
+			var flash = create_tween()
+			flash.tween_property(mat, "emission_energy_multiplier", 0.0, 0.2)
+			flash.finished.connect(func(): mat.emission_enabled = false)
 	for child in node.get_children():
 		_flash_meshes_recursive(child)
 
@@ -106,6 +126,9 @@ func complete_destruction():
 	var visual_model = get_node_or_null("VisualModel")
 	if visual_model:
 		_set_meshes_color_recursive(visual_model, Color.DARK_SLATE_GRAY)
+	
+	if rotation_tween:
+		rotation_tween.kill()
 		
 	# Spawn explosion effect if we had one
 	print("Radar Destroyed!")
