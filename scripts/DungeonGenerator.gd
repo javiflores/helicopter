@@ -2,6 +2,7 @@ extends Node3D
 
 @export var room_scene: PackedScene
 @export var enemy_scene: PackedScene
+@export var enemy_tank_scene: PackedScene
 
 var current_rooms: Array = []
 
@@ -129,7 +130,12 @@ func spawn_enemies_in_room(room, _biome_id, _room_idx):
 	var count = randi() % 2 + 1
 	for j in range(count):
 		var point = points.pick_random()
-		var enemy = enemy_scene.instantiate()
+		# 30% chance for Tank if configured, else Standard
+		var chosen_scene = enemy_scene
+		if enemy_tank_scene and randf() < 0.3:
+			chosen_scene = enemy_tank_scene
+			
+		var enemy = chosen_scene.instantiate()
 		add_child(enemy)
 		enemy.global_position = point
 		# Optional: configure enemy type based on biome in future

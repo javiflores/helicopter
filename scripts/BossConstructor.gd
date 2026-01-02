@@ -143,8 +143,9 @@ func spawn_minions():
 		drone.global_position.y = 1.0 
 		drone.add_to_group("enemy")
 		
-		if drone.has_method("configure"):
-			drone.configure("mob_drone_scout")
+		# Drone self-configures in _ready()
+		# if drone.has_method("configure"):
+		# 	drone.configure("mob_drone_scout")
 
 func build_wall():
 	# Renamed concept: Raise Rock Block

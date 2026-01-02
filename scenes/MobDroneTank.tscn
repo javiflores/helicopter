@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://enemy_tank_123"]
+
+[ext_resource type="Script" path="res://scripts/MobDroneTank.gd" id="1_enemy"]
+
+[node name="EnemyTank" type="CharacterBody3D"]
+script = ExtResource("1_enemy")
+start_mob_id = "mob_drone_tank"

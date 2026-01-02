@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://yxcha6eh23lp" path="res://scripts/DungeonGenerator.gd" id="7_generator_script"]
 [ext_resource type="PackedScene" path="res://scenes/Room.tscn" id="8_room"]
 [ext_resource type="PackedScene" path="res://scenes/Environment.tscn" id="9_env"]
+[ext_resource type="PackedScene" path="res://scenes/MobDroneTank.tscn" id="10_enemy_tank"]
 
 [node name="GameWorld" type="Node3D"]
 script = ExtResource("6_level_script")
@@ -35,3 +36,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 script = ExtResource("7_generator_script")
 room_scene = ExtResource("8_room")
 enemy_scene = ExtResource("2_enemy")
+enemy_tank_scene = ExtResource("10_enemy_tank")

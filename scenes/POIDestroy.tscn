@@ -39,6 +39,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 0)
 [node name="Turret_Right" parent="." instance=ExtResource("2_turret")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 0)
 
+[node name="Turret_Front" parent="." instance=ExtResource("2_turret")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8)
+
+[node name="Turret_Back" parent="." instance=ExtResource("2_turret")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
+
 [node name="Label3D" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0)
 billboard = 1
