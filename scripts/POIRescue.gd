@@ -9,7 +9,7 @@ var player_in_zone: bool = false
 var player_ref = null
 var ambush_triggered: bool = false
 
-var enemy_scene = preload("res://scenes/Enemy.tscn")
+var enemy_scene = preload("res://scenes/MobDroneScout.tscn")
 
 signal rescue_completed
 
@@ -20,7 +20,7 @@ func _ready():
 	
 	# Register with GameManager
 	if GameManager.has_method("register_objective"):
-		GameManager.register_objective()
+		GameManager.register_objective(self)
 
 func start_flashing():
 	var ring_mat = $RingVisual.get_active_material(0)
@@ -118,7 +118,7 @@ func complete_rescue():
 	print("Rescue Completed! Reward: ", reward_amount)
 	rescue_completed.emit()
 	if GameManager.has_method("complete_objective"):
-		GameManager.complete_objective()
+		GameManager.complete_objective(self)
 
 func _set_meshes_color_recursive(node: Node, color: Color):
 	if node is MeshInstance3D:

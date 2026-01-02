@@ -1,15 +1,14 @@
-[gd_scene load_steps=9 format=3 uid="uid://world12345"]
+[gd_scene load_steps=10 format=3 uid="uid://world12345"]
 
 [ext_resource type="PackedScene" uid="uid://player12345" path="res://scenes/Player.tscn" id="1_player"]
-[ext_resource type="PackedScene" uid="uid://enemy12345" path="res://scenes/Enemy.tscn" id="2_enemy"]
+[ext_resource type="PackedScene" uid="uid://enemy12345" path="res://scenes/MobDroneScout.tscn" id="2_enemy"]
 [ext_resource type="Script" uid="uid://cxm1fir862rat" path="res://scripts/CameraFollow.gd" id="3_camera_script"]
 [ext_resource type="PackedScene" path="res://scenes/UI/HUD.tscn" id="4_hud"]
 [ext_resource type="PackedScene" uid="uid://ce7i3thjhu8ee" path="res://scenes/UI/GameOverScreen.tscn" id="5_gameover"]
 [ext_resource type="Script" uid="uid://dph764u0k4x4u" path="res://scripts/GameLevel.gd" id="6_level_script"]
 [ext_resource type="Script" uid="uid://yxcha6eh23lp" path="res://scripts/DungeonGenerator.gd" id="7_generator_script"]
-[ext_resource type="PackedScene" uid="uid://room12345" path="res://scenes/Room.tscn" id="8_room"]
+[ext_resource type="PackedScene" path="res://scenes/Room.tscn" id="8_room"]
 [ext_resource type="PackedScene" path="res://scenes/Environment.tscn" id="9_env"]
-
 
 [node name="GameWorld" type="Node3D"]
 script = ExtResource("6_level_script")
@@ -31,7 +30,6 @@ offset = Vector3(5, 20, 5)
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-
 
 [node name="DungeonGenerator" type="Node3D" parent="."]
 script = ExtResource("7_generator_script")

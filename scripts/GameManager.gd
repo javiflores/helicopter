@@ -10,18 +10,36 @@ signal all_objectives_completed
 signal boss_activated(boss_node)
 signal boss_health_updated(current, max)
 
+var active_objective_nodes: Array[Node3D] = []
+signal objective_registered(node)
+signal objective_completed(node)
+
+var run_time: float = 0.0
+
+func _process(delta):
+	run_time += delta
+
 func reset_objectives():
 	total_objectives = 0
 	completed_objectives = 0
+	active_objective_nodes.clear()
 	objective_updated.emit(0, 0)
 	print("Objectives reset.")
 
-func register_objective():
+func register_objective(node: Node3D = null):
 	total_objectives += 1
+	if node:
+		active_objective_nodes.append(node)
+		objective_registered.emit(node)
 	objective_updated.emit(completed_objectives, total_objectives)
 
-func complete_objective():
+func complete_objective(node: Node3D = null):
 	completed_objectives += 1
+	if node:
+		if node in active_objective_nodes:
+			active_objective_nodes.erase(node)
+		objective_completed.emit(node)
+	
 	objective_updated.emit(completed_objectives, total_objectives)
 	
 	if completed_objectives >= total_objectives and total_objectives > 0:

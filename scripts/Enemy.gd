@@ -14,6 +14,8 @@ var detection_range: float = 20.0
 var attack_range: float = 8.0
 var attack_cooldown: float = 0.0
 
+var target_override: Node3D = null
+
 @export var start_mob_id: String = "mob_drone_scout"
 
 func _ready():
@@ -49,13 +51,18 @@ func configure(id: String):
 		print("Mob ID not found: ", id)
 
 func _physics_process(delta):
-	if not player: 
+	var target = player
+	if is_instance_valid(target_override):
+		target = target_override
+	elif not is_instance_valid(player):
 		# Try looking again if player spawned late
 		var players = get_tree().get_nodes_in_group("player")
 		if players.size() > 0: player = players[0]
 		return
+	
+	if not is_instance_valid(target): return
 
-	var dist = global_position.distance_to(player.global_position)
+	var dist = global_position.distance_to(target.global_position)
 	
 	match current_state:
 		State.IDLE:
@@ -69,14 +76,14 @@ func _physics_process(delta):
 			elif dist < attack_range:
 				current_state = State.ATTACK
 			else:
-				# Move towards player
-				var direction = (player.global_position - global_position).normalized()
+				# Move towards target
+				var direction = (target.global_position - global_position).normalized()
 				# Ignore Y difference
 				direction.y = 0 
 				velocity = direction * move_speed
 				
-				# Face player
-				var target_look = Vector3(player.global_position.x, global_position.y, player.global_position.z)
+				# Face target
+				var target_look = Vector3(target.global_position.x, global_position.y, target.global_position.z)
 				if global_position.distance_squared_to(target_look) > 0.1:
 					look_at(target_look, Vector3.UP)
 				
@@ -84,9 +91,9 @@ func _physics_process(delta):
 			if dist > attack_range * 1.2:
 				current_state = State.CHASE
 			else:
-				# Stop and Face player
+				# Stop and Face target
 				velocity = Vector3.ZERO
-				var target_look = Vector3(player.global_position.x, global_position.y, player.global_position.z)
+				var target_look = Vector3(target.global_position.x, global_position.y, target.global_position.z)
 				if global_position.distance_squared_to(target_look) > 0.1:
 					look_at(target_look, Vector3.UP)
 				
@@ -94,7 +101,7 @@ func _physics_process(delta):
 				attack_cooldown -= delta
 				if attack_cooldown <= 0:
 					attack_cooldown = 1.0 # 1 second fire rate
-					fire_weapon()
+					fire_weapon(target)
 				
 	move_and_slide()
 
@@ -138,7 +145,10 @@ func die():
 		
 	queue_free()
 
-func fire_weapon():
+func reset_target():
+	target_override = null
+
+func fire_weapon(target_node = null):
 	var proj_scene = preload("res://scenes/Projectile.tscn")
 	var proj = proj_scene.instantiate()
 	get_parent().add_child(proj)
@@ -148,9 +158,14 @@ func fire_weapon():
 	spawn_pos.y = 1.5 # Match height
 	proj.global_position = spawn_pos
 	
+	var actual_target = player
+	if target_node: actual_target = target_node
+	
+	if not is_instance_valid(actual_target): return
+	
 	# Configure: damage 5, range 20, speed 15
 	proj.configure(5.0, 20.0, 15.0, self)
 	
 	# Target Player directly
-	var target_vector = (player.global_position - spawn_pos).normalized()
+	var target_vector = (actual_target.global_position - spawn_pos).normalized()
 	proj.velocity = target_vector * 15.0

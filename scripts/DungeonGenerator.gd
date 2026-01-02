@@ -10,37 +10,71 @@ func generate_dungeon(biome_id: String):
 	
 	clear_dungeon()
 	
-	# Simple Linear Generation for Prototype
-	# Start Room (0,0) -> Combat Room (0,1) -> Combat Room (0,2) -> Boss Room (0,3)
+	# Dynamic Generation based on JSON
+	var rules = GameManager.game_data.get("game", {}).get("rules", {})
+	var poi_count = int(rules.get("pois_to_complete", 3))
 	
-	var room_positions = [
-		Vector3(0, 0, 0),
-		Vector3(0, 0, -50),
-		Vector3(0, 0, -100),
-		Vector3(0, 0, -150)
-	]
+	var world_data = GameManager.game_data.get("world", {})
+	var biomes = world_data.get("biomes", {})
+	var biome_data = biomes.get(biome_id, {})
+	var available_pois = biome_data.get("available_pois", [])
 	
-	for i in range(room_positions.size()):
-		var pos = room_positions[i]
+	if available_pois.is_empty():
+		print("Warning: No POIs found for biome ", biome_id, ". Using default.")
+		available_pois = ["poi_destroy"]
+	
+	# Generate Start Room (Safe)
+	var start_room = room_scene.instantiate()
+	add_child(start_room)
+	start_room.global_position = Vector3(0, 0, 0)
+	current_rooms.append(start_room)
+	decorate_room(start_room)
+	
+	var current_z = -50.0
+	
+	# Shuffle the available POIs to ensure uniqueness first
+	var distinct_pois = available_pois.duplicate()
+	distinct_pois.shuffle()
+	
+	# Generate POI Rooms
+	for i in range(poi_count):
 		var room = room_scene.instantiate()
 		add_child(room)
-		room.global_position = pos
+		room.global_position = Vector3(0, 0, current_z)
 		current_rooms.append(room)
 		
-		# Room Distribution:
-		# 0: Start
-		# 1: Combat
-		# 2: Rescue POI
-		# 3: Destroy POI
-		if i == 1:
-			spawn_enemies_in_room(room, biome_id, i)
-		elif i == 2:
-			spawn_poi_in_room(room, i, "res://scenes/POIRescue.tscn")
-		elif i == 3:
-			spawn_poi_in_room(room, i, "res://scenes/POIDestroy.tscn")
+		# Pick unique POI if possible, otherwise refill logic (simple wrap for now)
+		var poi_key = ""
+		if not distinct_pois.is_empty():
+			poi_key = distinct_pois.pop_front()
+		else:
+			# Fallback if we requested more POIs than available unique types
+			poi_key = available_pois.pick_random()
 			
-		# Decorate every room
+		var poi_path = get_poi_scene_path(poi_key)
+		spawn_poi_in_room(room, i, poi_path)
+		
+		# Also spawn some ambient enemies
+		spawn_enemies_in_room(room, biome_id, i)
 		decorate_room(room)
+		
+		current_z -= 50.0
+		
+	# Boss Room (Final)
+	# (Logic to be added later or just leave space for now)
+	var boss_room = room_scene.instantiate()
+	add_child(boss_room)
+	boss_room.global_position = Vector3(0, 0, current_z)
+	current_rooms.append(boss_room)
+	# Boss spawning handled by GameLevel or separately
+	decorate_room(boss_room)
+
+func get_poi_scene_path(key: String) -> String:
+	match key:
+		"poi_rescue": return "res://scenes/POIRescue.tscn"
+		"poi_destroy": return "res://scenes/POIDestroy.tscn"
+		"poi_convoy_defend": return "res://scenes/POIConvoyDefend.tscn"
+		_: return "res://scenes/POIDestroy.tscn"
 
 func decorate_room(room):
 	var rock_scene = load("res://scenes/environment/Rock.tscn")

@@ -8,7 +8,7 @@ var is_destroyed: bool = false
 var ambush_triggered: bool = false
 var rotation_tween: Tween = null
 
-var enemy_scene = preload("res://scenes/Enemy.tscn")
+var enemy_scene = preload("res://scenes/MobDroneScout.tscn")
 
 signal destroy_completed
 
@@ -19,7 +19,7 @@ func _ready():
 	
 	# Register with GameManager
 	if GameManager.has_method("register_objective"):
-		GameManager.register_objective()
+		GameManager.register_objective(self)
 	
 	# Find Dish/Head dynamically in the hierarchy
 	var visual_model = get_node_or_null("VisualModel")
@@ -140,7 +140,7 @@ func complete_destruction():
 		
 	destroy_completed.emit()
 	if GameManager.has_method("complete_objective"):
-		GameManager.complete_objective()
+		GameManager.complete_objective(self)
 	
 	# Disable turrets?
 	for child in get_children():
