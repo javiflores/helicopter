@@ -14,6 +14,12 @@ var active_objective_nodes: Array[Node3D] = []
 signal objective_registered(node)
 signal objective_completed(node)
 
+var current_loadout: Dictionary = {
+	"helicopter_id": "heli_starter",
+	"weapon_id": "weapon_machine_gun",
+	"ultimate_id": ""
+}
+
 var run_time: float = 0.0
 
 func _process(delta):

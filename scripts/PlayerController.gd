@@ -40,7 +40,10 @@ func _ready():
 	
 	load_stats()
 	setup_visuals()
-	equip_weapon("weapon_machine_gun")
+	
+	# Equip from Loadout
+	var weapon_to_equip = GameManager.current_loadout.get("weapon_id", "weapon_machine_gun")
+	equip_weapon(weapon_to_equip)
 	setup_reticle()
 
 func setup_reticle():
@@ -223,9 +226,10 @@ func collect_loot(type: int, amount: float):
 			scraps_since_upgrade += int_amount
 			print("Collected Scraps: ", amount, " Total: ", scraps)
 			
-			if scraps_since_upgrade >= 100:
-				scraps_since_upgrade -= 100
-				trigger_upgrade()
+			# Disabled for now pending redesign
+			#if scraps_since_upgrade >= 100:
+			#	scraps_since_upgrade -= 100
+			#	trigger_upgrade()
 		1: # INTEL
 			intel += int(amount)
 			print("Collected Intel: ", amount, " Total: ", intel)

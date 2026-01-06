@@ -164,14 +164,7 @@ func find_ally_to_protect() -> Node3D:
 				closest_ally = enemy
 	return closest_ally
 
-func can_provide_cover() -> bool:
-	return current_cover_slots < max_cover_slots
 
-func register_cover():
-	current_cover_slots += 1
-
-func unregister_cover():
-	current_cover_slots = max(0, current_cover_slots - 1)
 
 func fire_weapon(target_node):
 	var proj = projectile_scene.instantiate()
@@ -186,6 +179,7 @@ func fire_weapon(target_node):
 	
 	var target_vector = (target_node.global_position - spawn_pos).normalized()
 	proj.velocity = target_vector * 12.0
+	proj.look_at(spawn_pos + target_vector, Vector3.UP)
 
 func take_damage(amount: float):
 	health -= amount
@@ -222,3 +216,59 @@ func setup_visuals():
 	shape.size = Vector3(2.5, 2, 1.5) # Wider collision
 	col.shape = shape
 	add_child(col)
+
+# --- Cover Logic Enhancements ---
+
+var cover_occupants: Array = [] # Array of { "node": Node3D, "priority": int }
+
+func can_provide_cover() -> bool:
+	return current_cover_slots < max_cover_slots
+
+func register_cover():
+	# Legacy method for simple checking, assuming priority 0
+	register_cover_occupant(null, 0)
+
+func unregister_cover():
+	# Legacy
+	current_cover_slots = max(0, current_cover_slots - 1)
+
+func register_cover_occupant(node: Node3D, priority: int) -> bool:
+	if current_cover_slots >= max_cover_slots:
+		return false
+	
+	cover_occupants.append({ "node": node, "priority": priority })
+	current_cover_slots = cover_occupants.size()
+	return true
+
+func unregister_cover_occupant(node: Node3D):
+	for i in range(cover_occupants.size() - 1, -1, -1):
+		var occupant = cover_occupants[i]
+		if occupant.get("node") == node:
+			cover_occupants.remove_at(i)
+			current_cover_slots = cover_occupants.size()
+			return
+
+func request_priority_cover(requester: Node3D) -> bool:
+	# Priority 1: High (Support)
+	# Priority 0: Low (Scout)
+	
+	# If we have space, just take it
+	if can_provide_cover():
+		register_cover_occupant(requester, 1)
+		return true
+		
+	# If full, check if we can evict a lower priority occupant
+	for occupant in cover_occupants:
+		if occupant.get("priority", 0) < 1:
+			# Found a low priority occupant (likely a Scout)
+			var node = occupant.get("node")
+			if is_instance_valid(node) and node.has_method("yield_cover"):
+				node.yield_cover()
+				# Remove them immediately from our list (they will handle their state change)
+				unregister_cover_occupant(node)
+				
+				# Register new guy
+				register_cover_occupant(requester, 1)
+				return true
+				
+	return false

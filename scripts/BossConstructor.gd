@@ -93,6 +93,7 @@ func fire_single_projectile():
 	
 	var aim_dir = (target.global_position - proj.global_position).normalized()
 	proj.velocity = aim_dir * 20.0
+	proj.look_at(proj.global_position + aim_dir, Vector3.UP)
 
 func handle_phase_2(delta):
 	# "Intermediate": Stops moving, spawns 10 walls, waits 10s, then ULTIMATE.
@@ -215,7 +216,9 @@ func fire_dual_turrets():
 		get_tree().root.add_child(proj)
 		proj.global_position = spawn_pos
 		proj.configure(15.0, 50.0, 35.0, self) 
-		proj.velocity = (target.global_position - spawn_pos).normalized() * 35.0
+		var dir = (target.global_position - spawn_pos).normalized()
+		proj.velocity = dir * 35.0
+		proj.look_at(spawn_pos + dir, Vector3.UP)
 
 func perform_ultimate():
 	print("BOSS ULTIMATE: ROCK DETONATION!")
@@ -235,6 +238,7 @@ func spawn_shrapnel(origin: Vector3, count: int = 4):
 		proj.global_position = origin + Vector3(0, 1, 0)
 		proj.configure(10.0, 20.0, 20.0, self)
 		proj.velocity = dir * 20.0
+		proj.look_at(proj.global_position + dir, Vector3.UP)
 
 func enter_phase_2():
 	phase = 2

@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://scenes/Room.tscn" id="8_room"]
 [ext_resource type="PackedScene" path="res://scenes/Environment.tscn" id="9_env"]
 [ext_resource type="PackedScene" path="res://scenes/MobDroneTank.tscn" id="10_enemy_tank"]
+[ext_resource type="PackedScene" path="res://scenes/MobDroneSupport.tscn" id="11_enemy_support"]
 
 [node name="GameWorld" type="Node3D"]
 script = ExtResource("6_level_script")
@@ -37,3 +38,4 @@ script = ExtResource("7_generator_script")
 room_scene = ExtResource("8_room")
 enemy_scene = ExtResource("2_enemy")
 enemy_tank_scene = ExtResource("10_enemy_tank")
+enemy_support_scene = ExtResource("11_enemy_support")

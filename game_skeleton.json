@@ -1311,13 +1311,13 @@
 					"biome_desert"
 				],
 				"attacks": {
-					"main": "Repair Beam: Heals nearby allies over time",
+					"main": "Repair Field: Projects a healing aura (green circle) restoring ally HP",
 					"secondary": "Shield Generator: Projects a temporary shield on damaged allies",
 					"ultimate": false
 				},
 				"behavior": [
-					"Avoids the player and stays behind other hostile drones",
-					"Prioritizes following elite mobs or bosses if present",
+					"Avoids player, prioritizes taking cover behind Tank Drones (displacing Scouts)",
+					"Follows elite mobs or bosses if present",
 					"Flees actively if it is the last unit remaining"
 				],
 				"description": "Utility drone that keeps other enemies alive",

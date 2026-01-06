@@ -71,7 +71,10 @@ func _physics_process(delta):
 		var tank = find_nearby_tank()
 		if tank and tank.has_method("can_provide_cover") and tank.can_provide_cover():
 			cover_tank = tank
-			cover_tank.register_cover()
+			if tank.has_method("register_cover_occupant"):
+				tank.register_cover_occupant(self, 0) # Priority 0
+			else:
+				tank.register_cover()
 			current_state = State.SEEK_COVER
 	
 	match current_state:
@@ -103,8 +106,11 @@ func _physics_process(delta):
 		
 		State.SEEK_COVER:
 			if not is_instance_valid(cover_tank) or not is_instance_valid(target):
-				if is_instance_valid(cover_tank) and cover_tank.has_method("unregister_cover"):
-					cover_tank.unregister_cover()
+				if is_instance_valid(cover_tank):
+					if cover_tank.has_method("unregister_cover_occupant"):
+						cover_tank.unregister_cover_occupant(self)
+					elif cover_tank.has_method("unregister_cover"):
+						cover_tank.unregister_cover()
 				current_state = State.CHASE
 				cover_tank = null
 			else:
@@ -189,6 +195,7 @@ func fire_weapon(target_node):
 	
 	var target_vector = (target_node.global_position - spawn_pos).normalized()
 	proj.velocity = target_vector * 15.0
+	proj.look_at(spawn_pos + target_vector, Vector3.UP)
 
 func take_damage(amount: float):
 	health -= amount
@@ -227,3 +234,13 @@ func setup_visuals():
 	shape.size = Vector3(1, 2, 1)
 	col.shape = shape
 	add_child(col)
+
+func yield_cover():
+	# Forced out of cover by a higher priority ally
+	if current_state == State.SEEK_COVER:
+		cover_tank = null
+		# Briefly confuse or just return to chase
+		current_state = State.CHASE
+		# Optional: Add small stun or delay?
+		velocity = Vector3.ZERO
+		print("Scout yielded cover to superior officer.")

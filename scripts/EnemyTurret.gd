@@ -76,6 +76,7 @@ func fire():
 	proj.global_position = spawn_pos
 	proj.configure(damage, detection_range, projectile_speed, self)
 	proj.velocity = fire_dir * projectile_speed
+	proj.look_at(spawn_pos + fire_dir, Vector3.UP)
 
 func take_damage(amount: float):
 	health -= amount
