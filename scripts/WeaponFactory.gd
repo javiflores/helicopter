@@ -10,17 +10,34 @@ func create_weapon(weapon_id: String):
 		return null
 		
 	var data = weapons_db[weapon_id]
-	var specs = data.get("specs", {})
-	var type = specs.get("type", "projectile")
+	# New Schema: Type is inside primary_attack -> specs -> type
+	# Or purely based on ID map if we want overrides. 
+	# Let's fallback to primary attack type.
+	var primary = data.get("primary_attack", {})
+	var specs = primary.get("specs", {})
+	var type = specs.get("type", "projectile") 
+	
+	# Override for known complex types if needed, or rely on "type" string
+	if weapon_id == "weapon_grinder": type = "melee"
+	if weapon_id == "weapon_laser": type = "beam"
+	if weapon_id == "weapon_shockwave": type = "wave"
 	
 	var weapon_instance = null
 	
-	match type:
-		"projectile":
-			weapon_instance = load("res://scripts/ProjectileWeapon.gd").new()
+	match weapon_id:
+		"weapon_machine_gun":
+			weapon_instance = load("res://scripts/WeaponMachineGun.gd").new()
+		"weapon_rocket":
+			weapon_instance = load("res://scripts/WeaponRocket.gd").new()
 		_:
-			# Fallback for others
-			weapon_instance = load("res://scripts/Weapon.gd").new()
+			# Fallbacks
+			match type:
+				"projectile":
+					# Temporary fallback to generic script if exists, or Weapon.gd 
+					# Since we are deleting ProjectileWeapon, fallback to base Weapon
+					weapon_instance = load("res://scripts/Weapon.gd").new()
+				_:
+					weapon_instance = load("res://scripts/Weapon.gd").new()
 			
 	if weapon_instance:
 		weapon_instance.name = weapon_id

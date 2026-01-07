@@ -16,7 +16,9 @@ signal objective_completed(node)
 
 var current_loadout: Dictionary = {
 	"helicopter_id": "heli_starter",
-	"weapon_id": "weapon_machine_gun",
+	"primary_weapon_id": "weapon_machine_gun",
+	"secondary_weapon_id": "weapon_machine_gun",
+	"skill_id": "skill_repair",
 	"ultimate_id": ""
 }
 
@@ -71,21 +73,35 @@ func setup_default_inputs():
 		"move_right": [KEY_D, KEY_RIGHT],
 		"move_forward": [KEY_W, KEY_UP],
 		"move_back": [KEY_S, KEY_DOWN],
-		"dash": [KEY_SPACE],
+		"dodge": [KEY_SPACE],
+		"block": [KEY_Q],
+		"skill": [KEY_E],
 		"fire_primary": [MOUSE_BUTTON_LEFT],
 		"fire_secondary": [MOUSE_BUTTON_RIGHT],
-		"interact": [KEY_E],
+		"interact": [KEY_R],
 		"ultimate": [KEY_F]
 	}
 
 	# Controller Defaults
+	# Layout based on user request:
+	# Primary: X, Secondary: Y, Dodge: A, Skill: B, Block: RB
 	var joy_inputs = {
-		"dash": [JOY_BUTTON_A, JOY_BUTTON_LEFT_SHOULDER], # A or LB
-		"fire_primary": [JOY_BUTTON_RIGHT_SHOULDER], # RB
-		"fire_secondary": [JOY_BUTTON_LEFT_SHOULDER], 
-		"interact": [JOY_BUTTON_X], # X / Square
-		"ultimate": [JOY_BUTTON_Y] # Y / Triangle
+		"dodge": [JOY_BUTTON_A], 
+		"skill": [JOY_BUTTON_B],
+		"fire_primary": [JOY_BUTTON_X], 
+		"fire_secondary": [JOY_BUTTON_Y], 
+		"block": [JOY_BUTTON_RIGHT_SHOULDER],
+		"interact": [JOY_BUTTON_LEFT_SHOULDER], # LB as Interact/Reload generic
+		"ultimate": [JOY_BUTTON_RIGHT_SHOULDER] # RT handled in Axes
 	}
+    # Note: Trigger is an axis, handled below. Mapping Ultimate to RT (Axis 5) if digital check is needed, 
+    # but InputEventJoypadMotion is better for triggers. 
+    # Let's map Ultimate to RT via Axis check logic or just Button index if the controller supports it as button (unreliable).
+    # For reliability in Godot InputMap, Triggers are often Axes.
+    # checking joy_inputs loop... it uses InputEventJoypadButton.
+    
+    # Let's use Start for Menu?
+    
 	
 	# Axis Mappings (Action, Axis, Value)
 	var joy_axes = [
@@ -97,7 +113,7 @@ func setup_default_inputs():
 		["aim_right", JOY_AXIS_RIGHT_X, 1.0],
 		["aim_forward", JOY_AXIS_RIGHT_Y, -1.0],
 		["aim_back", JOY_AXIS_RIGHT_Y, 1.0],
-		["fire_primary", JOY_AXIS_TRIGGER_RIGHT, 1.0] # RT as Fire
+		["ultimate", JOY_AXIS_TRIGGER_RIGHT, 1.0] # RT as Ultimate
 	]
 	
 	# Register Actions

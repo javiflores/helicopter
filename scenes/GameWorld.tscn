@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://world12345"]
+[gd_scene load_steps=12 format=3 uid="uid://world12345"]
 
 [ext_resource type="PackedScene" uid="uid://player12345" path="res://scenes/Player.tscn" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://enemy12345" path="res://scenes/MobDroneScout.tscn" id="2_enemy"]

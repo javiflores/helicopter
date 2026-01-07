@@ -251,7 +251,7 @@ func perform_aoe_heal():
 		# Play heal effect
 		pulse_heal_visual()
 
-func take_damage(amount: float):
+func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO):
 	health -= amount
 	if health <= 0:
 		die()

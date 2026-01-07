@@ -12,7 +12,13 @@ var player = null
 @onready var boss_bar = $BossHUD/ProgressBar
 @onready var boss_name_label = $BossHUD/BossName
 
+var primary_label: Label = null
+var secondary_label: Label = null
+var skill_label: Label = null
+
 func _ready():
+	_setup_loadout_ui()
+	
 	# Try finding player immediately (might fail if order is wrong)
 	find_player()
 	
@@ -40,6 +46,36 @@ func _ready():
 		_spawn_indicator(obj_node)
 		
 	boss_hud.visible = false
+
+func _setup_loadout_ui():
+	# Create container bottom right
+	var margin = MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_KEEP_SIZE, 50)
+	margin.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	margin.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	
+	margin.add_theme_constant_override("margin_right", 50)
+	margin.add_theme_constant_override("margin_bottom", 50)
+	
+	var vbox = VBoxContainer.new()
+	margin.add_child(vbox)
+	
+	# Primary
+	primary_label = Label.new()
+	primary_label.text = "Primary: -"
+	vbox.add_child(primary_label)
+	
+	# Secondary
+	secondary_label = Label.new()
+	secondary_label.text = "Secondary: -"
+	vbox.add_child(secondary_label)
+	
+	# Skill
+	skill_label = Label.new()
+	skill_label.text = "Skill: -"
+	vbox.add_child(skill_label)
+	
+	add_child(margin)
 
 var indicator_scene = preload("res://scenes/UI/ObjectiveIndicator.tscn")
 var indicators = {} # Map node -> indicator instance
@@ -103,11 +139,42 @@ func _process(_delta):
 		var seconds = floor(fmod(time, 60))
 		run_timer_label.text = "%02d:%02d" % [minutes, seconds]
 		
-		# Dash Cooldown Logic
-		if player.can_dash:
+		# Dodge Cooldown Logic
+		if player.can_dodge:
 			dash_bar.value = dash_bar.max_value
 		else:
-			dash_bar.value = player.dash_cooldown - player.dash_cooldown_timer
+			dash_bar.value = player.dodge_cooldown - player.dodge_cooldown_timer
+			
+		# Update Loadout UI
+		_update_loadout_labels()
+
+func _update_loadout_labels():
+	if not player: return
+	
+	# Primary Name
+	var p_name = "None"
+	if player.primary_weapon:
+		# Assuming weapon has 'weapon_name' or we look up ID. 
+		# WeaponFactory doesn't set name on node usually, but we can verify.
+		# Or looking at GameManager.current_loadout
+		var id = GameManager.current_loadout.get("primary_weapon_id", "")
+		var data = GameManager.game_data.get("player", {}).get("weapons", {}).get(id, {})
+		p_name = data.get("name", "Unknown")
+	primary_label.text = "Primary: " + p_name.to_upper()
+	
+	# Secondary Name
+	var s_name = "None"
+	if player.secondary_weapon:
+		var id = GameManager.current_loadout.get("secondary_weapon_id", "")
+		var data = GameManager.game_data.get("player", {}).get("weapons", {}).get(id, {})
+		s_name = data.get("name", "Unknown")
+	secondary_label.text = "Secondary: " + s_name.to_upper()
+	
+	# Skill Status
+	var skill_txt = "READY"
+	if player.skill_timer > 0:
+		skill_txt = "%.1f" % player.skill_timer
+	skill_label.text = "Skill: " + skill_txt
 
 func find_player():
 	var players = get_tree().get_nodes_in_group("player")
@@ -115,4 +182,4 @@ func find_player():
 		player = players[0]
 		health_bar.max_value = player.max_health
 		health_bar.value = player.health
-		dash_bar.max_value = player.dash_cooldown
+		dash_bar.max_value = player.dodge_cooldown

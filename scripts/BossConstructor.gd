@@ -190,7 +190,7 @@ func raise_rock_block(is_cluster: bool = false):
 	
 	# Set position BEFORE adding to tree so _ready() logic works correctly (starts at -5 relative to this)
 	spawn_pos.y = 0 
-	block.global_position = spawn_pos
+	block.position = spawn_pos
 	
 	get_parent().add_child(block)
 	
@@ -253,7 +253,7 @@ func enter_phase_3():
 	spawn_timer = 5.0 # Reset spawn timer: Start immediately with a full cycle or 3s? 
 	# Let's keep it consistent with the logic in P3
 	
-func take_damage(amount):
+func take_damage(amount, _source_pos=Vector3.ZERO):
 	health -= amount
 	GameManager.notify_boss_health(health, max_health)
 	if health <= 0:

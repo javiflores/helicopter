@@ -61,7 +61,7 @@ func find_node_by_pattern(node: Node, patterns: Array) -> Node:
 		if res: return res
 	return null
 
-func take_damage(amount: float):
+func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO):
 	if is_destroyed: return
 	
 	current_health -= amount

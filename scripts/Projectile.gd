@@ -28,10 +28,25 @@ func _on_body_entered(body):
 	# Ignore self (shooter)
 	if body == shooter:
 		return
+	
+	# Parry Check
+	if body.has_method("attempt_parry") and body.attempt_parry(global_position):
+		print("Projectile Parried/Reflected!")
+		shooter = body # Now owned by the parrier
+		velocity = -velocity * 1.5 # Reflect back faster
+		if velocity.length_squared() > 0.01:
+			look_at(global_position + velocity, Vector3.UP)
+		lifetime = 2.0 # Reset lifetime
+		damage *= 2.0 # Bonus damage
 		
+		# Optional: Change layer to player layer or ignore mask?
+		# Currently mask relies on shooter-based filtering or layer physics.
+		# If we change shooter, we might hit enemies now if mask allows.
+		return
+
 	print("Projectile hit: ", body.name)
 	if body.has_method("take_damage"):
-		body.take_damage(damage)
+		body.take_damage(damage, global_position)
 	
 	# Don't destroy on pickups or triggers, only physical bodies
 	if body is PhysicsBody3D:

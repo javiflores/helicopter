@@ -197,7 +197,7 @@ func fire_weapon(target_node):
 	proj.velocity = target_vector * 15.0
 	proj.look_at(spawn_pos + target_vector, Vector3.UP)
 
-func take_damage(amount: float):
+func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO):
 	health -= amount
 	if health <= 0:
 		die()

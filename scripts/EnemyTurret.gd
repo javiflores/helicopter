@@ -13,7 +13,7 @@ var fire_timer: float = 0.0
 var projectile_scene = preload("res://scenes/Projectile.tscn")
 
 func _ready():
-	add_to_group("enemy")
+	add_to_group("enemies")
 	health = max_health
 	# Basic Mesh Setup if not in tscn
 	if get_child_count() == 0:
@@ -78,7 +78,7 @@ func fire():
 	proj.velocity = fire_dir * projectile_speed
 	proj.look_at(spawn_pos + fire_dir, Vector3.UP)
 
-func take_damage(amount: float):
+func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO):
 	health -= amount
 	_flash_visuals_recursive(self)
 	

@@ -380,9 +380,11 @@
 					"aim": "Mouse Cursor",
 					"fire_primary": "Left Mouse Button",
 					"fire_secondary": "Right Mouse Button",
-					"dash": "Spacebar",
+					"skill": "E",
+					"dodge": "Spacebar",
+					"block": "Q",
 					"ultimate": "F",
-					"interact": "E"
+					"interact": "R"
 				}
 			},
 			"movement_physics": {
@@ -620,478 +622,257 @@
 				}
 			}
 		},
+		"skills": {
+			"skill_repair": {
+				"name": "System Repair",
+				"description": "Emergency repair protocol. Restores 30% HP over 5s.",
+				"cooldown": 10.0,
+				"duration": 5.0,
+				"heal_percent": 0.3,
+				"default_unlocked": true,
+				"unlock_cost": null
+			}
+		},
 		"weapons": {
 			"weapon_machine_gun": {
-				"description": "Basic machine gun with medium rate of fire, medium damage and medium range",
-				"name": "Machine gun",
-				"specs": {
-					"damage": "10",
-					"range": "10",
-					"rate of fire": "10",
-					"targeting": "single target",
-					"type": "projectile"
+				"description": "Standard issue rotary cannon. Reliable and versatile.",
+				"name": "Machine Gun",
+				"primary_attack": {
+					"name": "Rapid Fire",
+					"description": "Continuous stream of bullets.",
+					"specs": {
+						"damage": "10",
+						"range": "15",
+						"rate of fire": "10",
+						"targeting": "single target",
+						"type": "projectile"
+					},
+					"visuals": {
+						"muzzle_flash": "vfx_muzzle_small_yellow",
+						"projectile": "vfx_proj_bullet_tracer"
+					}
+				},
+				"secondary_attack": {
+					"name": "Shotgun Blast",
+					"description": "Short range burst of multiple projectiles.",
+					"specs": {
+						"damage": "8",
+						"range": "10",
+						"rate of fire": "1.0",
+						"targeting": "cone",
+						"type": "projectile",
+						"projectile_count": 6,
+						"cooldown": 1.5
+					},
+					"visuals": {
+						"muzzle_flash": "vfx_muzzle_large_yellow",
+						"projectile": "vfx_proj_bullet_tracer"
+					}
 				},
 				"visuals": {
 					"model": "model_weapon_machine_gun_turret",
 					"audio": {
 						"sfx_shoot": "sfx_weapon_mg_fire_loop"
-					},
-					"vfx": {
-						"muzzle_flash": "vfx_muzzle_small_yellow",
-						"projectile": "vfx_proj_bullet_tracer"
-					}
-				},
-				"upgrades": {
-					"upgrade_rapid_fire": {
-						"name": "Rapid Fire Mechanism",
-						"description": "Increases rate of fire by 20%",
-						"stats_modifier": {
-							"rate of fire": "+2"
-						}
-					},
-					"upgrade_heavy_rounds": {
-						"name": "Heavy Caliber Rounds",
-						"description": "Increases damage but slightly reduces fire rate",
-						"stats_modifier": {
-							"damage": "+5",
-							"rate of fire": "-1"
-						}
-					},
-					"upgrade_scattered": {
-						"name": "Scattered Rounds",
-						"description": "Splits the main projectile into a unpredictable trio of bullets, covering a wider area.",
-						"mechanics": {
-							"projectile_count": 3,
-							"spread": 15
-						}
-					},
-					"upgrade_shotgun": {
-						"name": "Shotgun Conversion",
-						"description": "Modifies the firing mechanism to discharge a high-impact cluster of pellets at short range.",
-						"mechanics": {
-							"weapon_type_override": "shotgun"
-						}
-					},
-					"upgrade_piercing": {
-						"name": "Piercing Rounds",
-						"description": "Hardened alloy rounds capable of punching through multiple targets with diminishing returns.",
-						"mechanics": {
-							"piercing": true,
-							"damage_falloff": 0.2
-						}
-					},
-					"upgrade_chain": {
-						"name": "Chain Rounds",
-						"description": "Experimental ammo that arcs electricity to nearby enemies upon successful impact.",
-						"mechanics": {
-							"chain_on_hit": true
-						}
-					},
-					"upgrade_explosive": {
-						"name": "Micro-Explosives",
-						"description": "Rounds detonate on impact, dealing area damage to clustered hostiles.",
-						"mechanics": {
-							"area_of_effect": 1.5,
-							"aoe_damage_ratio": 0.5
-						}
-					},
-					"upgrade_ricochet": {
-						"name": "Reflective Plating",
-						"description": "Projectiles bounce off solid surfaces and enemy armor, extending their lethal trajectory.",
-						"mechanics": {
-							"ricochet_count": 2
-						}
-					},
-					"upgrade_spin_up": {
-						"name": "Rotary Barrel",
-						"description": "Fire rate accelerates continuously while holding down the trigger.",
-						"mechanics": {
-							"spin_up_time": 2.0,
-							"max_fire_rate_bonus": 10
-						}
-					},
-					"upgrade_execute": {
-						"name": "Finisher Rounds",
-						"description": "Significantly increases damage against enemies below 30% health.",
-						"mechanics": {
-							"execute_threshold": 0.3,
-							"execute_damage_multiplier": 2.0
-						}
 					}
 				},
 				"default_unlocked": true,
 				"unlock_cost": null
 			},
 			"weapon_rocket": {
-				"description": "Rocket launcher with low rate of fire, high damage and long range",
-				"name": "Rocket launcher",
-				"specs": {
-					"damage": "25",
-					"range": "20",
-					"rate of fire": "3",
-					"targeting": "area of effect",
-					"type": "projectile"
+				"description": "Heavy ordnance launcher for armored targets.",
+				"name": "Rocket Launcher",
+				"primary_attack": {
+					"name": "High-Ex Missile",
+					"description": "Slow moving, high damage explosive missile.",
+					"specs": {
+						"damage": "35",
+						"range": "20",
+						"rate of fire": "2.5",
+						"targeting": "area of effect",
+						"type": "projectile"
+					},
+					"visuals": {
+						"projectile": "vfx_proj_rocket_missile",
+						"impact": "vfx_explosion_medium_orange"
+					}
+				},
+				"secondary_attack": {
+					"name": "Swarm Salvo",
+					"description": "Unleashes a barrage of mini-rockets.",
+					"specs": {
+						"damage": "15",
+						"range": "18",
+						"rate of fire": "1.0",
+						"burst_count": 6,
+						"type": "projectile",
+						"cooldown": 4.0
+					},
+					"visuals": {
+						"projectile": "vfx_proj_mini_rocket",
+						"impact": "vfx_explosion_small"
+					}
 				},
 				"visuals": {
 					"model": "model_weapon_rocket_pod_angular",
 					"audio": {
 						"sfx_shoot": "sfx_weapon_rocket_launch"
-					},
-					"vfx": {
-						"projectile": "vfx_proj_rocket_missile",
-						"impact": "vfx_explosion_medium_orange"
 					}
 				},
-				"upgrades": {
-					"upgrade_payload": {
-						"name": "High-Yield Payload",
-						"description": "Packed with concentrated explosives that increase blast radius and raw damage.",
-						"stats_modifier": {
-							"damage": "+10",
-							"blast_radius": "+20%"
-						}
-					},
-					"upgrade_homing": {
-						"name": "Titanium Guidance",
-						"description": "Rockets intelligently track the nearest enemy heat signature.",
-						"mechanics": {
-							"tracking_strength": 0.8
-						}
-					},
-					"upgrade_cluster": {
-						"name": "MIRV Warheads",
-						"description": "Rockets split into smaller sub-munitions upon detonation, blanketing the area.",
-						"mechanics": {
-							"cluster_count": 4,
-							"cluster_damage_ratio": 0.3
-						}
-					},
-					"upgrade_napalm": {
-						"name": "Inferno Gel",
-						"description": "Explosions leave behind burning pools that damage enemies over time.",
-						"mechanics": {
-							"hazard_type": "fire",
-							"hazard_duration": 3.0
-						}
-					},
-					"upgrade_salvo": {
-						"name": "Multi-Loader",
-						"description": "Fires a burst of 3 rockets in quick succession but with reduced accuracy.",
-						"mechanics": {
-							"burst_count": 3,
-							"accuracy_penalty": 20.0,
-							"fire_rate_modifier": 0.5
-						}
-					},
-					"upgrade_gravity": {
-						"name": "Singularity Generator",
-						"description": "Warheads create a temporary gravity well that pulls enemies in before exploding.",
-						"mechanics": {
-							"pull_radius": 5.0,
-							"pull_force": 10.0
-						}
-					},
-					"upgrade_nuke": {
-						"name": "Miniature Nuke",
-						"description": "Fires a massive, slow-moving warhead that deals catastrophic damage over a huge area.",
-						"mechanics": {
-							"blast_radius_multiplier": 3.0,
-							"damage_multiplier": 4.0,
-							"projectile_speed_multiplier": 0.3
-						}
-					},
-					"upgrade_accel": {
-						"name": "Ramjet Thrusters",
-						"description": "Rockets accelerate during flight, dealing bonus impact damage based on distance traveled.",
-						"mechanics": {
-							"acceleration": 20.0,
-							"distance_damage_scaling": true
-						}
-					}
-				},
-				"default_unlocked": false,
-				"unlock_cost": {
-					"scraps": 300
-				}
-			},
-			"weapon_laser": {
-				"description": "Laser gun with high rate of fire, low damage and long range",
-				"name": "Laser gun",
+				"default_unlocked": true,
+				"unlock_cost": null
+			}
+		},
+		"weapon_laser": {
+			"description": "High-tech beam weapon.",
+			"name": "Laser Gun",
+			"primary_attack": {
+				"name": "Focus Beam",
+				"description": "Continuous damage beam.",
 				"specs": {
-					"damage": "10",
+					"damage": "8",
 					"range": "20",
 					"rate of fire": "20",
-					"targeting": "single target",
 					"type": "beam"
 				},
 				"visuals": {
-					"model": "model_weapon_laser_lens_array",
+					"beam": "vfx_beam_laser_red_core",
 					"audio": {
 						"sfx_shoot": "sfx_weapon_laser_hum_loop"
-					},
-					"vfx": {
-						"beam": "vfx_beam_laser_red_core"
 					}
-				},
-				"upgrades": {
-					"upgrade_lens": {
-						"name": "Crystal Focus",
-						"description": "Refines the beam through a synthetic crystal, increasing intensity and range.",
-						"stats_modifier": {
-							"damage": "+5",
-							"range": "+5"
-						}
-					},
-					"upgrade_chain": {
-						"name": "Prismatic Refraction",
-						"description": "The beam refracts upon hitting a target, chaining to nearby enemies.",
-						"mechanics": {
-							"chain_count": 2,
-							"chain_damage_ratio": 0.6
-						}
-					},
-					"upgrade_triple": {
-						"name": "Trident Emitter",
-						"description": "Splits the main beam into three parallel beams with slightly reduced individual power.",
-						"mechanics": {
-							"projectile_count": 3,
-							"damage_multiplier": 0.7
-						}
-					},
-					"upgrade_heat": {
-						"name": "Thermal Lance",
-						"description": "Super-heats the target, applying a stacking burn effect that melts armor.",
-						"mechanics": {
-							"status_effect": "burn",
-							"armor_melt_per_tick": 1.0
-						}
-					},
-					"upgrade_continuous": {
-						"name": "Flux Coil",
-						"description": "Allows for a continuous beam that ramps up damage the longer it is held on a target.",
-						"mechanics": {
-							"damage_ramp_per_second": 10.0,
-							"max_ramp_bonus": 50.0
-						}
-					},
-					"upgrade_slow": {
-						"name": "Cryo-Frequency",
-						"description": "Modulates the beam frequency to sap kinetic energy, slowing enemies significantly.",
-						"mechanics": {
-							"status_effect": "slow",
-							"slow_amount": 0.4
-						}
-					},
-					"upgrade_pierce": {
-						"name": "Spectral Wave",
-						"description": "Phases the beam allowing it to pass through obstacles and enemies.",
-						"mechanics": {
-							"wall_phasing": true,
-							"pierce_count": 999
-						}
-					},
-					"upgrade_reflection": {
-						"name": "Mirror Plating",
-						"description": "The beam reflects off walls and solid objects, extending its reach in confined spaces.",
-						"mechanics": {
-							"reflect_count": 3
-						}
-					}
-				},
-				"default_unlocked": false,
-				"unlock_cost": {
-					"scraps": 200
 				}
 			},
-			"weapon_shockwave": {
-				"description": "Shockwave generator with low rate of fire, medium damage and long range",
-				"name": "Shockwave generator",
+			"secondary_attack": {
+				"name": "Prismatic Lance",
+				"description": "High intensity discharge that pierces enemies.",
+				"specs": {
+					"damage": "60",
+					"range": "25",
+					"rate of fire": "1.0",
+					"cooldown": 3.0,
+					"piercing": true,
+					"type": "beam"
+				},
+				"visuals": {
+					"beam": "vfx_beam_laser_lance_blue",
+					"audio": {
+						"sfx_shoot": "sfx_weapon_laser_lance_fire"
+					}
+				}
+			},
+			"visuals": {
+				"model": "model_weapon_laser_lens_array",
+				"audio": {
+					"sfx_shoot": "sfx_weapon_laser_hum_loop"
+				},
+				"vfx": {
+					"beam": "vfx_beam_laser_red_core"
+				}
+			},
+			"default_unlocked": false,
+			"unlock_cost": {
+				"scraps": 200
+			}
+		},
+		"weapon_shockwave": {
+			"description": "Sonic disruptor.",
+			"name": "Shockwave Generator",
+			"primary_attack": {
+				"name": "Sonic Pulse",
+				"description": "Wide arc wave.",
 				"specs": {
 					"damage": "10",
-					"range": "20",
+					"range": "15",
 					"rate of fire": "5",
-					"targeting": "area of effect",
 					"type": "wave"
 				},
 				"visuals": {
-					"model": "model_weapon_shockwave_dish",
+					"wave": "vfx_wave_distortion_ring",
 					"audio": {
 						"sfx_shoot": "sfx_weapon_shockwave_pulse_bass"
-					},
-					"vfx": {
-						"wave": "vfx_wave_distortion_ring"
 					}
-				},
-				"upgrades": {
-					"upgrade_frequency": {
-						"name": "Sonic Amplifier",
-						"description": "Increases wave frequency and intensity, disrupting enemies more effectively.",
-						"stats_modifier": {
-							"damage": "+5",
-							"rate of fire": "+1"
-						}
-					},
-					"upgrade_echo": {
-						"name": "Echo Ripples",
-						"description": "Primary shockwave is followed by two smaller ripples that deal reduced damage.",
-						"mechanics": {
-							"ripple_count": 2,
-							"ripple_damage_ratio": 0.4,
-							"ripple_delay": 0.5
-						}
-					},
-					"upgrade_return": {
-						"name": "Tidal Boomerang",
-						"description": "Shockwaves expand outwards and then contract back to the player, hitting enemies twice.",
-						"mechanics": {
-							"wave_return": true,
-							"return_damage_multiplier": 0.8
-						}
-					},
-					"upgrade_spin": {
-						"name": "Gyro-Blade Field",
-						"description": "Deploys a stationary, spinning sonic field that persists for a duration, damaging anything inside.",
-						"mechanics": {
-							"deployable_type": "sonic_field",
-							"duration": 5.0,
-							"tick_rate": 0.2
-						}
-					},
-					"upgrade_nova": {
-						"name": "Nova Eruptor",
-						"description": "Releases a massive, 360-degree blast that clears the immediate area but has a long cooldown.",
-						"mechanics": {
-							"angle_override": 360,
-							"range_multiplier": 2.0,
-							"cooldown_multiplier": 3.0
-						}
-					},
-					"upgrade_resonance": {
-						"name": "Resonance Frequency",
-						"description": "Enemies killed by shockwaves vibrate violently and explode, damaging nearby foes.",
-						"mechanics": {
-							"on_kill_effect": "explode",
-							"explosion_damage": 20,
-							"explosion_radius": 3.0
-						}
-					},
-					"upgrade_lance": {
-						"name": "Sonic Lance",
-						"description": "Focuses the shockwave into a narrow, high-intensity cone with extreme range.",
-						"mechanics": {
-							"cone_angle_override": 15,
-							"range_multiplier": 3.0,
-							"damage_multiplier": 2.5
-						}
-					},
-					"upgrade_confuse": {
-						"name": "Disorienting Pulse",
-						"description": "Scrambles enemy sensors, causing them to attack their allies for a short time.",
-						"mechanics": {
-							"status_effect": "confuse",
-							"duration": 4.0
-						}
-					}
-				},
-				"default_unlocked": false,
-				"unlock_cost": {
-					"scraps": 400
 				}
 			},
-			"weapon_grinder": {
-				"description": "Suspended industrial buzzsaws designed for close-combat shredding.",
-				"name": "Grinder Assembly",
+			"secondary_attack": {
+				"name": "Nova Blast",
+				"description": "360-degree massive shockwave.",
+				"specs": {
+					"damage": "30",
+					"range": "10",
+					"rate of fire": "0.5",
+					"cooldown": 5.0,
+					"area": 360,
+					"type": "wave"
+				},
+				"visuals": {
+					"wave": "vfx_wave_distortion_nova",
+					"audio": {
+						"sfx_shoot": "sfx_weapon_shockwave_nova"
+					}
+				}
+			},
+			"visuals": {
+				"model": "model_weapon_shockwave_dish",
+				"audio": {
+					"sfx_shoot": "sfx_weapon_shockwave_pulse_bass"
+				},
+				"vfx": {
+					"wave": "vfx_wave_distortion_ring"
+				}
+			},
+			"default_unlocked": false,
+			"unlock_cost": {
+				"scraps": 400
+			}
+		},
+		"weapon_grinder": {
+			"description": "Melee buzzsaws.",
+			"name": "Grinder Assembly",
+			"primary_attack": {
+				"name": "Shredder",
+				"description": "Close range continuous damage.",
 				"specs": {
 					"damage": "50",
 					"range": "3",
 					"rate of fire": "Continuous",
-					"targeting": "Conal / Melee",
 					"type": "melee"
 				},
 				"visuals": {
-					"model": "model_weapon_grinder_sawsws",
+					"sparks": "vfx_impact_metal_sparks",
 					"audio": {
-						"sfx_shoot": "sfx_weapon_grinder_metal_screech_loop"
-					},
-					"vfx": {
-						"sparks": "vfx_impact_metal_sparks_shower"
+						"sfx_shoot": "sfx_weapon_grinder_loop"
 					}
-				},
-				"upgrades": {
-					"upgrade_arm": {
-						"name": "Hydraulic Extension",
-						"description": "Extends the mechanical arms, increasing the effective reach of the saws.",
-						"mechanics": {
-							"range_multiplier": 1.5
-						}
-					},
-					"upgrade_material": {
-						"name": "Diamond-Tipped Teeth",
-						"description": "Blades are reinforced to tear through enemy armor, ignoring a portion of damage reduction.",
-						"mechanics": {
-							"armor_penetration": 0.5
-						}
-					},
-					"upgrade_detach": {
-						"name": "Buzzsaw Launcher",
-						"description": "Allows firing the buzzsaws as spinning projectiles that travel a short distance.",
-						"mechanics": {
-							"ranged_mode_enabled": true,
-							"projectile_range": 15
-						}
-					},
-					"upgrade_magnet": {
-						"name": "Vortex Grinder",
-						"description": "Rapidly spinning blades create a vacuum that slowly pulls nearby enemies and loot.",
-						"mechanics": {
-							"pull_strength": 5.0,
-							"pull_range": 8.0
-						}
-					},
-					"upgrade_friction": {
-						"name": "Super-Heated Edge",
-						"description": "Friction generates intense heat, igniting enemies on contact.",
-						"mechanics": {
-							"fire_damage_per_second": 10,
-							"ignite_chance": 1.0
-						}
-					},
-					"upgrade_vampire": {
-						"name": "Siphon Gears",
-						"description": "Nanite coating repairs the helicopter hull for every enemy destroyed by the grinder.",
-						"mechanics": {
-							"life_leech_per_kill": 2
-						}
-					},
-					"upgrade_shield": {
-						"name": "Deflector Spin",
-						"description": "Saws spin at deflection speeds, knocking aside incoming small projectiles.",
-						"mechanics": {
-							"projectile_deflection_chance": 0.3
-						}
-					},
-					"upgrade_momentum": {
-						"name": "Gyroscopic Stabilizer",
-						"description": "Increases buzzsaw damage based on the helicopter's movement speed.",
-						"mechanics": {
-							"speed_to_damage_conversion": 0.5
-						}
-					},
-					"upgrade_dash": {
-						"name": "Rocket-Assist Lunge",
-						"description": "Performs a high-speed dash attack that deals massive contact damage.",
-						"mechanics": {
-							"dash_distance": 10,
-							"dash_damage": 150,
-							"cooldown": 5.0
-						}
-					}
-				},
-				"default_unlocked": false,
-				"unlock_cost": {
-					"scraps": 500,
-					"intel": 1
 				}
+			},
+			"secondary_attack": {
+				"name": "Saw Launcher",
+				"description": "Fires a spinning blade.",
+				"specs": {
+					"damage": "40",
+					"range": "15",
+					"rate of fire": "1.0",
+					"cooldown": 2.0,
+					"type": "projectile"
+				},
+				"visuals": {
+					"projectile": "vfx_proj_saw_blade",
+					"audio": {
+						"sfx_shoot": "sfx_weapon_grinder_launch"
+					}
+				}
+			},
+			"visuals": {
+				"model": "model_weapon_grinder_sawsws",
+				"audio": {
+					"sfx_shoot": "sfx_weapon_grinder_metal_screech_loop"
+				},
+				"vfx": {
+					"sparks": "vfx_impact_metal_sparks_shower"
+				}
+			},
+			"default_unlocked": false,
+			"unlock_cost": {
+				"scraps": 500,
+				"intel": 1
 			}
 		}
 	},
