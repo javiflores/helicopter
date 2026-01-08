@@ -6,11 +6,13 @@ var lifetime = 2.0
 var velocity = Vector3.ZERO
 
 var shooter = null
+var pierce_count = 0
 
-func configure(dmg, _rng, proj_speed = 50.0, _owner_node = null):
+func configure(dmg, _rng, proj_speed = 50.0, _owner_node = null, _pierce = 0):
 	damage = dmg
 	speed = proj_speed
 	shooter = _owner_node
+	pierce_count = _pierce
 
 func _ready():
 	# Mask Layers: 1(World) + 2(Player) + 3(Enemy) = 1+2+4 = 7
@@ -48,6 +50,14 @@ func _on_body_entered(body):
 	if body.has_method("take_damage"):
 		body.take_damage(damage, global_position)
 	
-	# Don't destroy on pickups or triggers, only physical bodies
+	# Handle Piercing
 	if body is PhysicsBody3D:
-		queue_free()
+		# Walls (StaticBody) always stop projectiles.
+		if body is StaticBody3D:
+			queue_free()
+		else:
+			if pierce_count > 0:
+				pierce_count -= 1
+				print("Pierced! Remaining: ", pierce_count)
+			else:
+				queue_free()

@@ -1,10 +1,11 @@
 extends Control
 
-@onready var health_bar = $HealthBar
-@onready var scrap_label = $ScrapLabel
-@onready var dash_bar = $DashBar
+@onready var main_layout = $MainLayout
+@onready var health_bar = $MainLayout/HealthBar
+@onready var scrap_label = $MainLayout/ScrapLabel
+@onready var dash_bar = $MainLayout/DashBar
 @onready var objective_label = $ObjectiveLabel
-@onready var run_timer_label = $RunTimerLabel
+@onready var run_timer_label = $MainLayout/RunTimerLabel
 
 var player = null
 
@@ -13,8 +14,11 @@ var player = null
 @onready var boss_name_label = $BossHUD/BossName
 
 var primary_label: Label = null
+var primary_bar: ProgressBar = null
 var secondary_label: Label = null
+var secondary_bar: ProgressBar = null
 var skill_label: Label = null
+var skill_bar: ProgressBar = null
 
 func _ready():
 	_setup_loadout_ui()
@@ -48,34 +52,50 @@ func _ready():
 	boss_hud.visible = false
 
 func _setup_loadout_ui():
-	# Create container bottom right
-	var margin = MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_KEEP_SIZE, 50)
-	margin.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	margin.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	
-	margin.add_theme_constant_override("margin_right", 50)
-	margin.add_theme_constant_override("margin_bottom", 50)
-	
-	var vbox = VBoxContainer.new()
-	margin.add_child(vbox)
+	# We want to inject the loadout UI into the MainLayout VBox
+	# Order: Health -> Scrap -> Dash -> [Primary -> Secondary -> Skill] -> RunTimer
 	
 	# Primary
 	primary_label = Label.new()
 	primary_label.text = "Primary: -"
-	vbox.add_child(primary_label)
+	main_layout.add_child(primary_label)
+	
+	primary_bar = ProgressBar.new()
+	primary_bar.custom_minimum_size = Vector2(150, 10)
+	primary_bar.show_percentage = false
+	var styles_p = StyleBoxFlat.new()
+	styles_p.bg_color = Color(1.0, 0.8, 0.2) # Yellow/Gold
+	primary_bar.add_theme_stylebox_override("fill", styles_p)
+	main_layout.add_child(primary_bar)
 	
 	# Secondary
 	secondary_label = Label.new()
 	secondary_label.text = "Secondary: -"
-	vbox.add_child(secondary_label)
+	main_layout.add_child(secondary_label)
+	
+	secondary_bar = ProgressBar.new()
+	secondary_bar.custom_minimum_size = Vector2(150, 10)
+	secondary_bar.show_percentage = false
+	var styles_s = StyleBoxFlat.new()
+	styles_s.bg_color = Color(1.0, 0.4, 0.0) # Orange
+	secondary_bar.add_theme_stylebox_override("fill", styles_s)
+	main_layout.add_child(secondary_bar)
 	
 	# Skill
 	skill_label = Label.new()
 	skill_label.text = "Skill: -"
-	vbox.add_child(skill_label)
+	main_layout.add_child(skill_label)
 	
-	add_child(margin)
+	skill_bar = ProgressBar.new()
+	skill_bar.custom_minimum_size = Vector2(150, 10)
+	skill_bar.show_percentage = false
+	var styles_k = StyleBoxFlat.new()
+	styles_k.bg_color = Color(0.2, 0.8, 1.0) # Cyan
+	skill_bar.add_theme_stylebox_override("fill", styles_k)
+	main_layout.add_child(skill_bar)
+	
+	# Re-order: Ensure RunTimer is last
+	main_layout.move_child(run_timer_label, main_layout.get_child_count() - 1)
 
 var indicator_scene = preload("res://scenes/UI/ObjectiveIndicator.tscn")
 var indicators = {} # Map node -> indicator instance
@@ -153,13 +173,20 @@ func _update_loadout_labels():
 	
 	# Primary Name
 	var p_name = "None"
+	var p_cur = 0.0
+	var p_max = 1.0
+
 	if player.primary_weapon:
-		# Assuming weapon has 'weapon_name' or we look up ID. 
-		# WeaponFactory doesn't set name on node usually, but we can verify.
-		# Or looking at GameManager.current_loadout
 		var id = GameManager.current_loadout.get("primary_weapon_id", "")
 		var data = GameManager.game_data.get("player", {}).get("weapons", {}).get(id, {})
 		p_name = data.get("name", "Unknown")
+		
+		p_cur = player.primary_weapon.primary_cooldown
+		p_max = player.primary_weapon.primary_cooldown_max
+		if p_max == 0: p_max = 0.1 # Avoid div/0
+	
+	primary_bar.max_value = p_max
+	primary_bar.value = p_max - p_cur
 	primary_label.text = "Primary: " + p_name.to_upper()
 	
 	# Secondary Name
@@ -168,13 +195,33 @@ func _update_loadout_labels():
 		var id = GameManager.current_loadout.get("secondary_weapon_id", "")
 		var data = GameManager.game_data.get("player", {}).get("weapons", {}).get(id, {})
 		s_name = data.get("name", "Unknown")
+		
+		# Bar Logic
+		var s_cur = player.secondary_weapon.secondary_cooldown
+		var s_max = player.secondary_weapon.secondary_cooldown_max
+		if s_max == 0: s_max = 0.1
+		
+		secondary_bar.max_value = s_max
+		secondary_bar.value = s_max - s_cur
+	else:
+		secondary_bar.value = 0
+		
 	secondary_label.text = "Secondary: " + s_name.to_upper()
 	
 	# Skill Status
-	var skill_txt = "READY"
-	if player.skill_timer > 0:
-		skill_txt = "%.1f" % player.skill_timer
-	skill_label.text = "Skill: " + skill_txt
+	var sk_cur = player.skill_timer
+	var sk_max = player.skill_cooldown
+	if sk_max == 0: sk_max = 1.0
+	
+	skill_bar.max_value = sk_max
+	skill_bar.value = sk_max - sk_cur
+	
+	# Fetch Skill Name
+	var sk_id = player.current_skill_id
+	var sk_data = GameManager.game_data.get("player", {}).get("skills", {}).get(sk_id, {})
+	var sk_name = sk_data.get("name", "Skill")
+	
+	skill_label.text = "Skill: " + sk_name.to_upper()
 
 func find_player():
 	var players = get_tree().get_nodes_in_group("player")

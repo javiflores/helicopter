@@ -5,8 +5,8 @@ var blast_radius = 5.0
 var target: Node3D = null
 var turn_speed: float = 5.0 # Radians per second
 
-func configure(dmg, rng, proj_speed = 15.0, owner_node = null):
-	super.configure(dmg, rng, proj_speed, owner_node)
+func configure(dmg, rng, proj_speed = 15.0, owner_node = null, _pierce = 0):
+	super.configure(dmg, rng, proj_speed, owner_node, _pierce)
 	speed = 15.0 
 	lifetime = 5.0 # Longer life for homing
 

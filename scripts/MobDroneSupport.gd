@@ -50,11 +50,14 @@ func configure():
 		var stat_data = data.get("stats", {})
 		health = float(stat_data.get("health", 60.0))
 		move_speed = float(data.get("speed", "12"))
+		is_elite = data.get("elite", false)
 		
-		print("Support Drone Configured: HP:", health, " Spd:", move_speed)
+		print("Support Drone Configured: HP:", health, " IsElite:", is_elite)
 		setup_visuals()
 
 func _physics_process(delta):
+	if is_stunned: return
+	
 	# Refresh player ref if needed
 	if not is_instance_valid(player):
 		var players = get_tree().get_nodes_in_group("player")
@@ -158,6 +161,11 @@ func _physics_process(delta):
 			# If far enough, go back to IDLE
 			if global_position.distance_to(player.global_position) > detection_range * 1.5:
 				current_state = State.IDLE
+
+	# Apply Knockback
+	if knockback_velocity.length_squared() > 0.1:
+		velocity += knockback_velocity
+		knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * 10.0)
 
 	move_and_slide()
 	update_visuals()
@@ -320,3 +328,33 @@ func update_visuals():
 func pulse_heal_visual():
 	# Simple tween pulse could go here, for now just toggle visibility logic handles it
 	pass
+
+# Stun Logic
+var is_stunned: bool = false
+var stun_timer: float = 0.0
+var is_elite: bool = false
+
+var knockback_velocity: Vector3 = Vector3.ZERO
+
+func apply_knockback(force: Vector3):
+	if is_elite:
+		knockback_velocity += force * 0.2
+	else:
+		knockback_velocity += force
+		if force.length() > 10.0:
+			apply_stun(0.5)
+
+func apply_stun(duration: float):
+	if is_elite:
+		return
+	is_stunned = true
+	stun_timer = duration
+	velocity = Vector3.ZERO
+	is_healing = false # Stop healing while stunned
+
+func _process(delta):
+	if is_stunned:
+		stun_timer -= delta
+		if stun_timer <= 0:
+			is_stunned = false
+		return

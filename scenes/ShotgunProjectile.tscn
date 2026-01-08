@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://6ae2f5mhsaws"]
+
+[ext_resource type="Script" path="res://scripts/ShotgunProjectile.gd" id="1_shotgun"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_pellet"]
+radius = 0.2
+
+[sub_resource type="SphereMesh" id="SphereMesh_tracer"]
+radius = 0.1
+height = 0.4
+radial_segments = 8
+rings = 4
+
+[node name="ShotgunProjectile" type="Area3D"]
+script = ExtResource("1_shotgun")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_pellet")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+mesh = SubResource("SphereMesh_tracer")

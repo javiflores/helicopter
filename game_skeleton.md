@@ -48,6 +48,8 @@
     *   Thunderclap EMP (Stun)
     *   Aegis Field (Shield)
     *   System Overdrive (Buff)
+*   **Skills:**
+    *   *Static Discharge:* Expanding electric ring, stuns enemies (2s).
 
 ## 5. Content: World
 *   **Biomes:**
@@ -65,10 +67,11 @@
     *   H21/H22 (Tier 1 Upgrades)
     *   H31/H32/H33 (Tier 2 Upgrades)
 *   **Weapons:**
-    *   Machine Gun (Projectile, Single Target)
-    *   Rocket Launcher (Projectile, AOE)
-    *   Laser (Beam, DOT - *implied*)
-    *   Railgun (Hitscan, Pierce - *implied*)
+    *   Machine Gun (Rapid Fire + Heavy Slug)
+    *   Rocket Launcher (Explosive + Barrage)
+    *   Auto Shotgun (Buckshot + Concussive Blast)
+    *   Laser (Beam - *implied*)
+    *   Railgun (Hitscan - *implied*)
 
 ## 7. User Interface
 *   **HUD:** HealthBar, Minimap, WeaponInfo, ObjectiveTracker, ResourceCounter.

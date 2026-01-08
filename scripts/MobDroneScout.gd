@@ -49,11 +49,13 @@ func configure():
 		health = float(stat_data.get("health", 30.0))
 		damage = float(stat_data.get("damage", 5.0))
 		move_speed = float(data.get("speed", "10"))
-		
-		print("Scout Configured: HP:", health, " Spd:", move_speed)
+		is_elite = data.get("elite", false)
+		print("Scout Configured: HP:", health, " IsElite:", is_elite)
 		setup_visuals()
 
 func _physics_process(delta):
+	if is_stunned: return
+	
 	var target = player
 	if is_instance_valid(target_override):
 		target = target_override
@@ -157,6 +159,12 @@ func _physics_process(delta):
 				
 				# If Tank dies or moves too far logic handles implicitly by re-check loop or physics
 
+	# Apply Knockback
+	if knockback_velocity.length_squared() > 0.1:
+		velocity += knockback_velocity
+		# Increase friction for knockback to stop sliding feeling "delayed" or "floaty"
+		knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * 10.0)
+	
 	move_and_slide()
 
 func move_towards(target_pos, speed):
@@ -244,3 +252,43 @@ func yield_cover():
 		# Optional: Add small stun or delay?
 		velocity = Vector3.ZERO
 		print("Scout yielded cover to superior officer.")
+
+# Stun Logic
+var is_stunned: bool = false
+var stun_timer: float = 0.0
+var is_elite: bool = false # Loaded from JSON effectively by 'elite' property
+
+var knockback_velocity: Vector3 = Vector3.ZERO
+
+func apply_knockback(force: Vector3):
+	if is_elite:
+		# Elites take reduced knockback
+		knockback_velocity += force * 0.2
+	else:
+		knockback_velocity += force
+		# STAGGER: Also briefly stun on big hits?
+		if force.length() > 10.0:
+			apply_stun(0.5)
+
+func apply_stun(duration: float):
+	# Elites/Bosses ignore stun
+	# We check if "elite" is true in configuration or property
+	if is_elite:
+		print(mob_id, " resisted stun (Elite).")
+		return
+		
+	print(mob_id, " stunned for ", duration)
+	is_stunned = true
+	stun_timer = duration
+	velocity = Vector3.ZERO
+	# Interrupt attacks
+	attack_cooldown = max(attack_cooldown, 0.5)
+
+func _process(delta):
+	if is_stunned:
+		stun_timer -= delta
+		if stun_timer <= 0:
+			is_stunned = false
+			print(mob_id, " recovered from stun.")
+		return # Skip other logic
+

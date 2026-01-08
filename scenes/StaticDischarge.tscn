@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://b8i30c5wnx70i"]
+
+[ext_resource type="Script" path="res://scripts/StaticDischarge.gd" id="1_static"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_area"]
+height = 2.0
+radius = 0.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ring"]
+transparency = 1
+albedo_color = Color(0.2, 0.6, 1.0, 0.5)
+emission_enabled = true
+emission = Color(0.2, 0.8, 1.0, 1)
+emission_energy_multiplier = 4.0
+cull_mode = 2
+
+[sub_resource type="TorusMesh" id="TorusMesh_ring"]
+material = SubResource("StandardMaterial3D_ring")
+inner_radius = 0.4
+outer_radius = 0.5
+
+[node name="StaticDischarge" type="Area3D"]
+monitorable = false
+script = ExtResource("1_static")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CylinderShape3D_area")
+
+[node name="RingMesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("TorusMesh_ring")

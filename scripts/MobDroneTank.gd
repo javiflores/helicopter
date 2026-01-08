@@ -47,11 +47,14 @@ func configure():
 		health = float(stat_data.get("health", 120.0))
 		damage = float(stat_data.get("damage", 10.0))
 		move_speed = float(data.get("speed", "5"))
+		is_elite = data.get("elite", false)
 		
-		print("Tank Configured: HP:", health, " Spd:", move_speed)
+		print("Tank Configured: HP:", health, " IsElite:", is_elite)
 		setup_visuals()
 
 func _physics_process(delta):
+	if is_stunned: return
+
 	var target = player
 	if is_instance_valid(target_override):
 		target = target_override
@@ -137,6 +140,11 @@ func _physics_process(delta):
 					if attack_cooldown <= 0:
 						attack_cooldown = fire_rate
 						fire_weapon(target)
+
+	# Apply Knockback
+	if knockback_velocity.length_squared() > 0.1:
+		velocity += knockback_velocity
+		knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * 10.0)
 
 	move_and_slide()
 
@@ -272,3 +280,38 @@ func request_priority_cover(requester: Node3D) -> bool:
 				return true
 				
 	return false
+
+# Stun Logic
+var is_stunned: bool = false
+var stun_timer: float = 0.0
+var is_elite: bool = false
+
+var knockback_velocity: Vector3 = Vector3.ZERO
+
+func apply_knockback(force: Vector3):
+	# Tank is heavy: takes 30% knockback
+	var resistance = 0.3
+	if is_elite: resistance = 0.1 # Very heavy
+	
+	knockback_velocity += force * resistance
+	# Stun threshold higher for Tank
+	if force.length() > 25.0:
+		apply_stun(0.2)
+
+func apply_stun(duration: float):
+	if is_elite:
+		print(mob_id, " resisted stun (Elite).")
+		return
+		
+	print(mob_id, " stunned for ", duration)
+	is_stunned = true
+	stun_timer = duration
+	velocity = Vector3.ZERO
+	attack_cooldown = max(attack_cooldown, 0.5)
+
+func _process(delta):
+	if is_stunned:
+		stun_timer -= delta
+		if stun_timer <= 0:
+			is_stunned = false
+		return

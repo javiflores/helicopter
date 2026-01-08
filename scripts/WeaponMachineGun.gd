@@ -1,25 +1,34 @@
 extends "res://scripts/Weapon.gd"
 
 var projectile_scene = preload("res://scenes/Projectile.tscn")
+var slug_projectile_scene = preload("res://scenes/SlugProjectile.tscn")
 
 func fire_primary():
 	# Standard Rapid Fire
 	_fire_bullet(primary_attack, 1, 0.0)
 
 func fire_secondary():
-	# Shotgun Blast
-	var count = int(secondary_attack.get("specs", {}).get("projectile_count", 6))
-	_fire_bullet(secondary_attack, count, 30.0) # 30 degrees total spread
+	# Heavy Slug
+	# Specs: High damage, single shot, piercing
+	_fire_bullet(secondary_attack, 1, 0.0)
 
 func _fire_bullet(attack_data: Dictionary, count: int, spread_deg: float):
 	print("MG Firing: ", attack_data.get("name"))
 	var specs = attack_data.get("specs", {})
 	var damage = float(specs.get("damage", 10.0))
-	var speed = 50.0 # Fast bullet speed
 	var range_val = float(specs.get("range", 20.0))
+	var pierce = int(specs.get("piercing", 0))
+	
+	# Determine speed based on type? Or just faster for Slug?
+	var speed = 50.0 
+	var current_scene = projectile_scene
+	
+	if attack_data.get("name") == "Heavy Slug":
+		speed = 80.0
+		current_scene = slug_projectile_scene
 	
 	for i in range(count):
-		var proj = projectile_scene.instantiate()
+		var proj = current_scene.instantiate()
 		get_tree().root.add_child(proj)
 		
 		# Position
@@ -37,7 +46,7 @@ func _fire_bullet(attack_data: Dictionary, count: int, spread_deg: float):
 			rot.y += deg_to_rad(angle)
 		else:
 			# Slight random spread for rapid fire accuracy?
-			if spread_deg == 0:
+			if spread_deg == 0 and attack_data.get("name") != "Heavy Slug":
 				var random_sway = deg_to_rad(randf_range(-2.0, 2.0))
 				rot.y += random_sway
 				
@@ -49,4 +58,5 @@ func _fire_bullet(attack_data: Dictionary, count: int, spread_deg: float):
 		forward.y = 0 
 		proj.velocity = forward * speed
 		
-		proj.configure(damage, range_val, speed, get_parent())
+		if proj.has_method("configure"):
+			proj.configure(damage, range_val, speed, get_parent(), pierce)

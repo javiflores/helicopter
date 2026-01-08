@@ -29,6 +29,8 @@ func create_weapon(weapon_id: String):
 			weapon_instance = load("res://scripts/WeaponMachineGun.gd").new()
 		"weapon_rocket":
 			weapon_instance = load("res://scripts/WeaponRocket.gd").new()
+		"weapon_shotgun":
+			weapon_instance = load("res://scripts/WeaponShotgun.gd").new()
 		_:
 			# Fallbacks
 			match type:

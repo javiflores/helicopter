@@ -399,7 +399,7 @@
 			"combat_physics": {
 				"invulnerability_frames": {
 					"on_hit_duration": 1.0,
-					"on_dash_duration": 0.3
+					"on_dash_duration": 0.05
 				},
 				"collision_damage": {
 					"walls": 5,
@@ -631,6 +631,15 @@
 				"heal_percent": 0.3,
 				"default_unlocked": true,
 				"unlock_cost": null
+			},
+			"skill_static": {
+				"name": "Static Discharge",
+				"description": "Releases an expanding electric ring that stuns enemies for 2s.",
+				"cooldown": 8.0,
+				"duration": 2.0,
+				"radius": 10.0,
+				"default_unlocked": true,
+				"unlock_cost": null
 			}
 		},
 		"weapons": {
@@ -653,16 +662,16 @@
 					}
 				},
 				"secondary_attack": {
-					"name": "Shotgun Blast",
-					"description": "Short range burst of multiple projectiles.",
+					"name": "Heavy Slug",
+					"description": "High velocity heavy round that pierces enemies.",
 					"specs": {
-						"damage": "8",
-						"range": "10",
+						"damage": "50",
+						"range": "30",
 						"rate of fire": "1.0",
-						"targeting": "cone",
+						"targeting": "line",
 						"type": "projectile",
-						"projectile_count": 6,
-						"cooldown": 1.5
+						"piercing": 3,
+						"cooldown": 2.5
 					},
 					"visuals": {
 						"muzzle_flash": "vfx_muzzle_large_yellow",
@@ -674,6 +683,45 @@
 					"audio": {
 						"sfx_shoot": "sfx_weapon_mg_fire_loop"
 					}
+				},
+				"default_unlocked": true,
+				"unlock_cost": null
+			},
+			"weapon_shotgun": {
+				"description": "Close-quarters crowd control weapon.",
+				"name": "Auto Shotgun",
+				"primary_attack": {
+					"name": "Buckshot",
+					"description": "Fires a spread of 6 pellets.",
+					"specs": {
+						"damage": "6",
+						"count": "6",
+						"spread": "30",
+						"range": "40",
+						"rate of fire": "1.0",
+						"type": "projectile"
+					},
+					"visuals": {
+						"projectile": "vfx_bullet_tracer_yellow"
+					}
+				},
+				"secondary_attack": {
+					"name": "Concussive Blast",
+					"description": "Short range blast that pushes enemies back.",
+					"specs": {
+						"damage": "5",
+						"range": "10",
+						"force": "150.0",
+						"cooldown": "2.0",
+						"rate of fire": "1.0",
+						"type": "blast"
+					},
+					"visuals": {
+						"vfx": "vfx_air_blast"
+					}
+				},
+				"visuals": {
+					"model": "model_weapon_shotgun"
 				},
 				"default_unlocked": true,
 				"unlock_cost": null
@@ -720,159 +768,108 @@
 				},
 				"default_unlocked": true,
 				"unlock_cost": null
-			}
-		},
-		"weapon_laser": {
-			"description": "High-tech beam weapon.",
-			"name": "Laser Gun",
-			"primary_attack": {
-				"name": "Focus Beam",
-				"description": "Continuous damage beam.",
-				"specs": {
-					"damage": "8",
-					"range": "20",
-					"rate of fire": "20",
-					"type": "beam"
+			},
+			"weapon_laser": {
+				"description": "High-tech beam weapon.",
+				"name": "Laser Gun",
+				"primary_attack": {
+					"name": "Focus Beam",
+					"description": "Continuous damage beam.",
+					"specs": {
+						"damage": "8",
+						"range": "20",
+						"rate of fire": "20",
+						"type": "beam"
+					},
+					"visuals": {
+						"beam": "vfx_beam_laser_red_core",
+						"audio": {
+							"sfx_shoot": "sfx_weapon_laser_hum_loop"
+						}
+					}
+				},
+				"secondary_attack": {
+					"name": "Prismatic Lance",
+					"description": "High intensity discharge that pierces enemies.",
+					"specs": {
+						"damage": "60",
+						"range": "25",
+						"rate of fire": "1.0",
+						"cooldown": 3.0,
+						"piercing": true,
+						"type": "beam"
+					},
+					"visuals": {
+						"beam": "vfx_beam_laser_lance_blue",
+						"audio": {
+							"sfx_shoot": "sfx_weapon_laser_lance_fire"
+						}
+					}
 				},
 				"visuals": {
-					"beam": "vfx_beam_laser_red_core",
+					"model": "model_weapon_laser_lens_array",
 					"audio": {
 						"sfx_shoot": "sfx_weapon_laser_hum_loop"
+					},
+					"vfx": {
+						"beam": "vfx_beam_laser_red_core"
 					}
+				},
+				"default_unlocked": false,
+				"unlock_cost": {
+					"scraps": 200
 				}
 			},
-			"secondary_attack": {
-				"name": "Prismatic Lance",
-				"description": "High intensity discharge that pierces enemies.",
-				"specs": {
-					"damage": "60",
-					"range": "25",
-					"rate of fire": "1.0",
-					"cooldown": 3.0,
-					"piercing": true,
-					"type": "beam"
+			"weapon_grinder": {
+				"description": "Melee buzzsaws.",
+				"name": "Grinder Assembly",
+				"primary_attack": {
+					"name": "Shredder",
+					"description": "Close range continuous damage.",
+					"specs": {
+						"damage": "50",
+						"range": "3",
+						"rate of fire": "Continuous",
+						"type": "melee"
+					},
+					"visuals": {
+						"sparks": "vfx_impact_metal_sparks",
+						"audio": {
+							"sfx_shoot": "sfx_weapon_grinder_loop"
+						}
+					}
+				},
+				"secondary_attack": {
+					"name": "Saw Launcher",
+					"description": "Fires a spinning blade.",
+					"specs": {
+						"damage": "40",
+						"range": "15",
+						"rate of fire": "1.0",
+						"cooldown": 2.0,
+						"type": "projectile"
+					},
+					"visuals": {
+						"projectile": "vfx_proj_saw_blade",
+						"audio": {
+							"sfx_shoot": "sfx_weapon_grinder_launch"
+						}
+					}
 				},
 				"visuals": {
-					"beam": "vfx_beam_laser_lance_blue",
+					"model": "model_weapon_grinder_sawsws",
 					"audio": {
-						"sfx_shoot": "sfx_weapon_laser_lance_fire"
+						"sfx_shoot": "sfx_weapon_grinder_metal_screech_loop"
+					},
+					"vfx": {
+						"sparks": "vfx_impact_metal_sparks_shower"
 					}
-				}
-			},
-			"visuals": {
-				"model": "model_weapon_laser_lens_array",
-				"audio": {
-					"sfx_shoot": "sfx_weapon_laser_hum_loop"
 				},
-				"vfx": {
-					"beam": "vfx_beam_laser_red_core"
+				"default_unlocked": false,
+				"unlock_cost": {
+					"scraps": 500,
+					"intel": 1
 				}
-			},
-			"default_unlocked": false,
-			"unlock_cost": {
-				"scraps": 200
-			}
-		},
-		"weapon_shockwave": {
-			"description": "Sonic disruptor.",
-			"name": "Shockwave Generator",
-			"primary_attack": {
-				"name": "Sonic Pulse",
-				"description": "Wide arc wave.",
-				"specs": {
-					"damage": "10",
-					"range": "15",
-					"rate of fire": "5",
-					"type": "wave"
-				},
-				"visuals": {
-					"wave": "vfx_wave_distortion_ring",
-					"audio": {
-						"sfx_shoot": "sfx_weapon_shockwave_pulse_bass"
-					}
-				}
-			},
-			"secondary_attack": {
-				"name": "Nova Blast",
-				"description": "360-degree massive shockwave.",
-				"specs": {
-					"damage": "30",
-					"range": "10",
-					"rate of fire": "0.5",
-					"cooldown": 5.0,
-					"area": 360,
-					"type": "wave"
-				},
-				"visuals": {
-					"wave": "vfx_wave_distortion_nova",
-					"audio": {
-						"sfx_shoot": "sfx_weapon_shockwave_nova"
-					}
-				}
-			},
-			"visuals": {
-				"model": "model_weapon_shockwave_dish",
-				"audio": {
-					"sfx_shoot": "sfx_weapon_shockwave_pulse_bass"
-				},
-				"vfx": {
-					"wave": "vfx_wave_distortion_ring"
-				}
-			},
-			"default_unlocked": false,
-			"unlock_cost": {
-				"scraps": 400
-			}
-		},
-		"weapon_grinder": {
-			"description": "Melee buzzsaws.",
-			"name": "Grinder Assembly",
-			"primary_attack": {
-				"name": "Shredder",
-				"description": "Close range continuous damage.",
-				"specs": {
-					"damage": "50",
-					"range": "3",
-					"rate of fire": "Continuous",
-					"type": "melee"
-				},
-				"visuals": {
-					"sparks": "vfx_impact_metal_sparks",
-					"audio": {
-						"sfx_shoot": "sfx_weapon_grinder_loop"
-					}
-				}
-			},
-			"secondary_attack": {
-				"name": "Saw Launcher",
-				"description": "Fires a spinning blade.",
-				"specs": {
-					"damage": "40",
-					"range": "15",
-					"rate of fire": "1.0",
-					"cooldown": 2.0,
-					"type": "projectile"
-				},
-				"visuals": {
-					"projectile": "vfx_proj_saw_blade",
-					"audio": {
-						"sfx_shoot": "sfx_weapon_grinder_launch"
-					}
-				}
-			},
-			"visuals": {
-				"model": "model_weapon_grinder_sawsws",
-				"audio": {
-					"sfx_shoot": "sfx_weapon_grinder_metal_screech_loop"
-				},
-				"vfx": {
-					"sparks": "vfx_impact_metal_sparks_shower"
-				}
-			},
-			"default_unlocked": false,
-			"unlock_cost": {
-				"scraps": 500,
-				"intel": 1
 			}
 		}
 	},

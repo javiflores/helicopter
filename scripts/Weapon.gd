@@ -10,7 +10,9 @@ var visuals: Dictionary = {}
 
 # Cooldowns
 var primary_cooldown: float = 0.0
+var primary_cooldown_max: float = 0.0
 var secondary_cooldown: float = 0.0
+var secondary_cooldown_max: float = 0.0
 var can_fire_primary: bool = true
 var can_fire_secondary: bool = true
 
@@ -63,18 +65,30 @@ func start_cooldown(is_primary: bool):
 	# Check for explicit cooldown first, then rate of fire
 	var cooldown_val = float(specs.get("cooldown", 0.0))
 	if cooldown_val > 0:
-		if is_primary: primary_cooldown = cooldown_val
-		else: secondary_cooldown = cooldown_val
+		if is_primary: 
+			primary_cooldown = cooldown_val
+			primary_cooldown_max = cooldown_val
+		else: 
+			secondary_cooldown = cooldown_val
+			secondary_cooldown_max = cooldown_val
 	else:
 		var rate_of_fire = float(specs.get("rate of fire", 1.0))
 		if rate_of_fire > 0:
 			var cd = 1.0 / rate_of_fire
-			if is_primary: primary_cooldown = cd
-			else: secondary_cooldown = cd
+			if is_primary: 
+				primary_cooldown = cd
+				primary_cooldown_max = cd
+			else: 
+				secondary_cooldown = cd
+				secondary_cooldown_max = cd
 		else:
 			# Default fallback
-			if is_primary: primary_cooldown = 1.0
-			else: secondary_cooldown = 1.0
+			if is_primary: 
+				primary_cooldown = 1.0
+				primary_cooldown_max = 1.0
+			else: 
+				secondary_cooldown = 1.0
+				secondary_cooldown_max = 1.0
 			
 	if is_primary: can_fire_primary = false
 	else: can_fire_secondary = false

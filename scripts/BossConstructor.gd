@@ -24,6 +24,9 @@ func _ready():
 	load_stats()
 	find_target()
 	GameManager.notify_boss_activated(self)
+	
+	motion_mode = MOTION_MODE_FLOATING
+	wall_min_slide_angle = 0
 
 func load_stats():
 	var boss_data = GameManager.game_data.get("enemies", {}).get("bosses", {}).get("boss_city", {})
@@ -41,6 +44,15 @@ func find_target():
 		target = players[0]
 
 func _physics_process(delta):
+	# Height Constraint (Keep Boss at Y=1.5 to hover above walls but stay hittable)
+	# Use 1.5 so it doesn't clip into ground but projectiles (often at y=1.0 with radius) should hit it.
+	# Actually, if projectile is at 1.0, and boss at 1.5, assuming Boss has height ~2, it works.
+	# If boss goes too high, force it down.
+	var target_height = 1.0
+	if abs(global_position.y - target_height) > 0.1:
+		global_position.y = move_toward(global_position.y, target_height, 5.0 * delta)
+	velocity.y = 0
+
 	if health <= 0: return
 	if not target:
 		find_target()

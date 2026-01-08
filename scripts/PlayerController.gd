@@ -16,15 +16,16 @@ var max_health: float = 100.0
 var scraps: int = 0
 var intel: int = 0
 
-# Dodge (formerly Dash)
+# Dodge properties
 var can_dodge: bool = true
 var is_dodging: bool = false
-var dodge_duration: float = 0.3
-var dodge_speed_multiplier: float = 3.0
-var dodge_cooldown: float = 1.5
+var dodge_duration: float = 0.05 # Shortened to 0.05s for "micro-snap" feel
+var dodge_speed_multiplier: float = 4.0 
+var dodge_cooldown: float = 1.0 
 var dodge_timer: float = 0.0
 var dodge_cooldown_timer: float = 0.0
 var invulnerable: bool = false
+var dodge_direction_locked: Vector3 = Vector3.ZERO
 
 # Block / Parry
 var is_blocking: bool = false
@@ -100,7 +101,8 @@ func load_stats():
 	
 	# Load dodge (invulnerability frames)
 	var combat_phys = mechanics.get("combat_physics", {}).get("invulnerability_frames", {})
-	dodge_duration = float(combat_phys.get("on_dash_duration", 0.3))
+	# We override duration slightly for the "Air Blaster" feel if JSON is too high
+	dodge_duration = float(combat_phys.get("on_dash_duration", 0.05)) 
 	
 	# Load Skill Stats
 	var skill_data = GameManager.game_data.get("player", {}).get("skills", {}).get(current_skill_id, {})
@@ -151,7 +153,7 @@ func get_input():
 	
 	# Dodge
 	if Input.is_action_just_pressed("dodge") and can_dodge and input_vector != Vector2.ZERO:
-		start_dodge()
+		start_dodge(input_dir)
 		
 	# Block
 	is_blocking = Input.is_action_pressed("block")
@@ -166,33 +168,61 @@ func get_input():
 
 	# Debug Weapon Swap Logic Removed
 
-func start_dodge():
+func start_dodge(dir_input: Vector2):
 	can_dodge = false
 	is_dodging = true
 	invulnerable = true
-	dodge_timer = dodge_duration * 1.5 
+	dodge_timer = dodge_duration
 	
-	# Visual Feedback: Barrel Roll or Tilt
-	var mesh = get_node_or_null("VisualModel")
-	if mesh:
-		var tween = create_tween()
-		# Quick 360 roll on X or Z depending on move dir?
-		# Simple "flash" transparency for now
-		tween.tween_property(mesh, "scale", Vector3(0.1, 0.1, 0.1), 0.1)
-		tween.tween_property(mesh, "scale", Vector3(0.5, 0.5, 0.5), 0.2)
-		
-	print("Dodge Started!")
+	# Lock direction based on Camera or World depending on movement scheme
+	# Reuse handle_movement's direction logic to get world-space vector
+	var camera = get_viewport().get_camera_3d()
+	if camera:
+		var cam_basis = camera.global_transform.basis
+		var forward = cam_basis.z
+		var right = cam_basis.x
+		forward.y = 0
+		right.y = 0
+		forward = forward.normalized()
+		right = right.normalized()
+		dodge_direction_locked = (right * dir_input.x + forward * dir_input.y).normalized()
+	else:
+		dodge_direction_locked = Vector3(dir_input.x, 0, dir_input.y).normalized()
+	
+	print("Air Blaster Dodge: ", dodge_direction_locked)
 
 func end_dodge():
 	is_dodging = false
 	invulnerable = false
 	dodge_cooldown_timer = dodge_cooldown
+	
+	# Stop the momentum! 
+	# Reset velocity to max_speed immediately so we don't glide at 4x speed.
+	if velocity.length() > max_speed:
+		velocity = velocity.normalized() * max_speed
+		
 	print("Dodge Ended")
 
 func use_skill():
-	# Placeholder Skill: Healing Pulse
-	print("Used Skill: Repair Pulse")
-	health = min(health + 10, max_health)
+	# Load Skill Stats
+	var skill_data = GameManager.game_data.get("player", {}).get("skills", {}).get(current_skill_id, {})
+	
+	if current_skill_id == "skill_static":
+		var radius = float(skill_data.get("radius", 10.0))
+		var duration = float(skill_data.get("duration", 2.0))
+		
+		var discharge = load("res://scenes/StaticDischarge.tscn").instantiate()
+		add_child(discharge)
+		discharge.position = Vector3(0, 1.0, 0) # Local position relative to player center
+		if discharge.has_method("configure"):
+			discharge.configure(radius, duration)
+			
+		print("Used Skill: Static Discharge")
+	elif current_skill_id == "skill_repair":
+		# Placeholder Skill: Healing Pulse
+		print("Used Skill: Repair Pulse")
+		health = min(health + 10, max_health)
+	
 	skill_timer = skill_cooldown
 	
 	# Visual
@@ -203,8 +233,21 @@ func use_skill():
 		tween.tween_property(mesh, "scale", Vector3(0.5, 0.5, 0.5), 0.2)
 
 func handle_movement(delta):
-	# ... (Movement logic remains, just ensuring no conflicts)
-	# Copied for context
+	# AIR BLASTER DODGE LOGIC
+	if is_dodging:
+		# Constant high velocity in the locked direction -> "Blasted"
+		velocity = dodge_direction_locked * max_speed * dodge_speed_multiplier
+		move_and_slide()
+		
+		# Optional: Add small tilt in direction of dodge for kinetic feel
+		var mesh = get_node_or_null("VisualModel")
+		if mesh:
+			var local_dodge = global_transform.basis.inverse() * dodge_direction_locked
+			mesh.rotation.z = lerp_angle(mesh.rotation.z, -local_dodge.x * 0.5, delta * 20.0)
+			mesh.rotation.x = lerp_angle(mesh.rotation.x, local_dodge.z * 0.5, delta * 20.0)
+		return
+
+	# NORMAL MOVEMENT
 	var camera = get_viewport().get_camera_3d()
 	var direction = Vector3.ZERO
 	
@@ -219,16 +262,6 @@ func handle_movement(delta):
 		direction = (right * input_vector.x + forward * input_vector.y).normalized()
 	else:
 		direction = Vector3(input_vector.x, 0, input_vector.y).normalized()
-	
-	if is_dodging:
-		var dodge_mult = 2.0
-		if direction != Vector3.ZERO:
-			velocity = direction * max_speed * dodge_mult
-		else:
-			var forward = -transform.basis.z
-			velocity = forward * max_speed * dodge_mult
-		move_and_slide()
-		return
 		
 	# Block Movement Penalty
 	var current_speed_mult = 1.0
