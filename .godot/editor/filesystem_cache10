@@ -1,5 +1,5 @@
 63f7b34db8d8cdea90c76aacccf841ec
-::res://::1768060467
+::res://::1768064680
 agent_build_guide.md::TextFile::-1::1767540021::0::1::::<><><>0<>0<><>::
 game_skeleton.json::JSON::-1::1767914807::0::1::::<><><>0<>0<><>::
 game_skeleton.md::TextFile::-1::1767914785::0::1::::<><><>0<>0<><>::
@@ -68,7 +68,7 @@ CameraFollow.gd::GDScript::6413545322881469311::1767540021::0::1::::<>Camera3D<>
 ConcussiveBlast.gd::GDScript::7152932203168059562::1767911172::0::1::::<>Node3D<><>0<>0<><>::
 ConvoyVehicle.gd::GDScript::8322013151739086576::1768050691::0::1::::<>CharacterBody3D<><>0<>0<><>::
 DungeonGenerator.gd::GDScript::1732146918280146173::1767621710::0::1::::<>Node3D<><>0<>0<><>::
-EnemyTurret.gd::GDScript::3056105279580206911::1768056138::0::1::::<>StaticBody3D<><>0<>0<><>::
+EnemyTurret.gd::GDScript::3056105279580206911::1768064661::0::1::::<>StaticBody3D<><>0<>0<><>::
 GameLevel.gd::GDScript::8228545208531444850::1767540021::0::1::::<>Node3D<><>0<>0<><>::
 GameManager.gd::GDScript::2494380838094772391::1768051627::0::1::::<>Node<><>0<>0<><>::
 HitSparks.gd::GDScript::7753135352620259525::1768053770::0::1::::<>GPUParticles3D<><>0<>0<><>::
@@ -78,7 +78,7 @@ MobDroneTank.gd::GDScript::7741995828482315952::1768056134::0::1::::<>CharacterB
 Pickup.gd::GDScript::8604395511646125943::1767540021::0::1::::<>Area3D<><>0<>0<><>::
 PlayerController.gd::GDScript::6900356088838829257::1768060418::0::1::::<>CharacterBody3D<><>0<>0<><>::
 POIConvoyDefend.gd::GDScript::4326362379904996374::1768055156::0::1::::<>Node3D<><>0<>0<><>::
-POIDestroy.gd::GDScript::3726479754416433010::1768056142::0::1::::<>Node3D<><>0<>0<><>::
+POIDestroy.gd::GDScript::3726479754416433010::1768064553::0::1::::<>Node3D<><>0<>0<><>::
 POIRescue.gd::GDScript::1411200340866084824::1767540028::0::1::::<>Node3D<><>0<>0<><>::
 Projectile.gd::GDScript::3453174771215938140::1768053786::0::1::::<>Area3D<><>0<>0<><>::
 RocketProjectile.gd::GDScript::2900184789279784521::1768054822::0::1::::<>Area3D<><>0<>0<><>::

@@ -11,6 +11,7 @@ var target = null
 var fire_timer: float = 0.0
 
 var projectile_scene = preload("res://scenes/Projectile.tscn")
+var blast_scene = preload("res://scenes/BlastEffect.tscn")
 
 func _ready():
 	add_to_group("enemies")
@@ -92,7 +93,12 @@ func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO, attacker_te
 
 func die():
 	print("Turret destroyed!")
-	# Optional: spawn explosion
+	if blast_scene:
+		var blast = blast_scene.instantiate()
+		get_parent().add_child(blast)
+		blast.global_position = global_position
+		blast.scale = Vector3(1.5, 1.5, 1.5)
+	
 	queue_free()
 
 func _flash_visuals_recursive(node: Node):
