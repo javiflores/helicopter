@@ -8,11 +8,14 @@ var velocity = Vector3.ZERO
 var shooter = null
 var pierce_count = 0
 
-func configure(dmg, _rng, proj_speed = 50.0, _owner_node = null, _pierce = 0):
+var attacker_team: String = "neutral"
+
+func configure(dmg, _rng, proj_speed = 50.0, _owner_node = null, _pierce = 0, team = "neutral"):
 	damage = dmg
 	speed = proj_speed
 	shooter = _owner_node
 	pierce_count = _pierce
+	attacker_team = team
 
 func _ready():
 	# Mask Layers: 1(World) + 2(Player) + 3(Enemy) = 1+2+4 = 7
@@ -35,6 +38,12 @@ func _on_body_entered(body):
 	if body.has_method("attempt_parry") and body.attempt_parry(global_position):
 		print("Projectile Parried/Reflected!")
 		shooter = body # Now owned by the parrier
+		# Update team if the parrier has one
+		if body.has_method("get_team"):
+			attacker_team = body.get_team()
+		else:
+			attacker_team = "friend" # Default to friend if player parries
+			
 		velocity = -velocity * 1.5 # Reflect back faster
 		if velocity.length_squared() > 0.01:
 			look_at(global_position + velocity, Vector3.UP)
@@ -47,8 +56,14 @@ func _on_body_entered(body):
 		return
 
 	print("Projectile hit: ", body.name)
+	
+	# Spawn Sparks
+	var sparks = load("res://scenes/HitSparks.tscn").instantiate()
+	get_parent().add_child(sparks)
+	sparks.global_position = global_position
+	
 	if body.has_method("take_damage"):
-		body.take_damage(damage, global_position)
+		body.take_damage(damage, global_position, attacker_team)
 	
 	# Handle Piercing
 	if body is PhysicsBody3D:

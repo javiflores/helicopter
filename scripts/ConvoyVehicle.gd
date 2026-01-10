@@ -46,7 +46,12 @@ func _physics_process(delta):
 		velocity.z = 0
 		move_and_slide()
 
-func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO):
+func get_team() -> String:
+	return "friend"
+
+func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO, attacker_team: String = "neutral"):
+	if attacker_team == "friend":
+		return
 	current_health -= amount
 	update_ui()
 	if current_health <= 0:

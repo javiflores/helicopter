@@ -3,9 +3,9 @@ extends "res://scripts/Projectile.gd"
 # Remove duplicate lifetime var
 var current_time: float = 0.0
 
-func configure(dmg, rng, proj_speed = 50.0, owner_node = null, _pierce = 0):
+func configure(dmg, rng, proj_speed = 50.0, owner_node = null, _pierce = 0, team = "neutral"):
 	# Call super first to set basics
-	super.configure(dmg, rng, proj_speed, owner_node, _pierce)
+	super.configure(dmg, rng, proj_speed, owner_node, _pierce, team)
 	
 	# Auto-calculate lifetime based on range/speed
 	if speed > 0:
@@ -16,7 +16,6 @@ func configure(dmg, rng, proj_speed = 50.0, owner_node = null, _pierce = 0):
 func _process(delta):
 	# Parent uses _physics_process for movement/lifetime. 
 	# We use _process for visual fading.
-	
 	current_time += delta
 	# Lifetime check is already in parent _physics_process, but we can do it here too or rely on parent.
 	# Actually, parent decrements 'lifetime' var in _physics_process.

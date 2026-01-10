@@ -93,7 +93,7 @@ func populate_ults():
 	var ults = GameManager.game_data.get("player", {}).get("ultimates", {})
 	_populate_list(ult_container, ults, "", "ultimate_id")
 
-func _populate_list(container, data_dict, allowed_key, type_tag):
+func _populate_list(container, data_dict, _allowed_key, type_tag):
 	for child in container.get_children():
 		child.queue_free()
 		
@@ -146,7 +146,7 @@ func _on_item_selected(key, type, container):
 	print("Selected ", type, ": ", key)
 	_refresh_highlights(container, key)
 
-func _refresh_highlights(container, selected_key):
+func _refresh_highlights(container, _selected_key):
 	for btn in container.get_children():
 		# This is a bit hacky, relying on button text containing name. 
 		# Ideally we'd store metadata. But for now, just checking if it's the one we clicked.

@@ -30,7 +30,9 @@ func _process(delta):
 func reset_objectives():
 	total_objectives = 0
 	completed_objectives = 0
-	active_objective_nodes.clear()
+	completed_objectives = 0
+	active_objective_nodes.clear() # Clear specific references
+	active_objective_nodes = [] # Re-init array to be safe
 	objective_updated.emit(0, 0)
 	print("Objectives reset.")
 

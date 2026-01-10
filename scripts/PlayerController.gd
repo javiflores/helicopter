@@ -20,8 +20,8 @@ var intel: int = 0
 var can_dodge: bool = true
 var is_dodging: bool = false
 var dodge_duration: float = 0.05 # Shortened to 0.05s for "micro-snap" feel
-var dodge_speed_multiplier: float = 4.0 
-var dodge_cooldown: float = 1.0 
+var dodge_speed_multiplier: float = 4.0
+var dodge_cooldown: float = 1.0
 var dodge_timer: float = 0.0
 var dodge_cooldown_timer: float = 0.0
 var invulnerable: bool = false
@@ -51,7 +51,7 @@ func _ready():
 	
 	# Collision Settings
 	collision_layer = 2 # Layer 2: Player
-	collision_mask = 5  # Mask 1 (World) + 4 (Enemy). Collide with enemies.
+	collision_mask = 5 # Mask 1 (World) + 4 (Enemy). Collide with enemies.
 	motion_mode = MOTION_MODE_FLOATING # Smoother physics for flying
 	wall_min_slide_angle = 0 # Slide off everything
 	
@@ -102,7 +102,7 @@ func load_stats():
 	# Load dodge (invulnerability frames)
 	var combat_phys = mechanics.get("combat_physics", {}).get("invulnerability_frames", {})
 	# We override duration slightly for the "Air Blaster" feel if JSON is too high
-	dodge_duration = float(combat_phys.get("on_dash_duration", 0.05)) 
+	dodge_duration = float(combat_phys.get("on_dash_duration", 0.05))
 	
 	# Load Skill Stats
 	var skill_data = GameManager.game_data.get("player", {}).get("skills", {}).get(current_skill_id, {})
@@ -123,7 +123,6 @@ func equip_weapons(id_primary: String, id_secondary: String):
 	if secondary_weapon:
 		add_child(secondary_weapon)
 		secondary_weapon.position = Vector3(0.5, 0, -1.5)
-
 
 
 func _physics_process(delta):
@@ -240,11 +239,11 @@ func handle_movement(delta):
 		move_and_slide()
 		
 		# Optional: Add small tilt in direction of dodge for kinetic feel
-		var mesh = get_node_or_null("VisualModel")
-		if mesh:
+		var visual_mesh = get_node_or_null("VisualModel")
+		if visual_mesh:
 			var local_dodge = global_transform.basis.inverse() * dodge_direction_locked
-			mesh.rotation.z = lerp_angle(mesh.rotation.z, -local_dodge.x * 0.5, delta * 20.0)
-			mesh.rotation.x = lerp_angle(mesh.rotation.x, local_dodge.z * 0.5, delta * 20.0)
+			visual_mesh.rotation.z = lerp_angle(visual_mesh.rotation.z, -local_dodge.x * 0.5, delta * 20.0)
+			visual_mesh.rotation.x = lerp_angle(visual_mesh.rotation.x, local_dodge.z * 0.5, delta * 20.0)
 		return
 
 	# NORMAL MOVEMENT
@@ -282,7 +281,7 @@ func handle_movement(delta):
 		if move_ref == Vector3.ZERO and velocity.length() > 0.1:
 			move_ref = velocity.normalized()
 		var local_move = global_transform.basis.inverse() * move_ref
-		var target_tilt_z = -local_move.x * 0.4
+		var target_tilt_z = - local_move.x * 0.4
 		var target_tilt_x = local_move.z * 0.4
 		
 		# Blocking visuals: Tilt up?
@@ -301,7 +300,12 @@ func handle_movement(delta):
 
 # ...
 
-func take_damage(amount: float, source_pos: Vector3 = Vector3.ZERO):
+func get_team() -> String:
+	return "friend"
+
+func take_damage(amount: float, source_pos: Vector3 = Vector3.ZERO, attacker_team: String = "neutral"):
+	if attacker_team == "friend":
+		return
 	if invulnerable:
 		return
 		
@@ -311,7 +315,6 @@ func take_damage(amount: float, source_pos: Vector3 = Vector3.ZERO):
 		# If we are here, it means either:
 		# 1. Not a projectile (hitscan/AOE)
 		# 2. Parry window missed, but block is active.
-		
 		# Regular Block Reduction
 		amount *= 0.5
 		print("Blocked! Damage reduced to ", amount)
@@ -368,7 +371,7 @@ func handle_aiming(delta):
 		target_dir.y = 0
 		
 		if target_dir.length_squared() > 0.001:
-			var forward = -global_transform.basis.z
+			var forward = - global_transform.basis.z
 			var angle_diff = forward.signed_angle_to(target_dir, Vector3.UP)
 			var cone_half = deg_to_rad(15.0) # 30 degree total cone
 			
@@ -404,7 +407,7 @@ func handle_aiming(delta):
 func handle_combat(_delta):
 	# Primary Slot -> Linked to Primary Fire (Left Click)
 	if primary_weapon and Input.is_action_pressed("fire_primary"):
-		primary_weapon.attempt_fire(true) 
+		primary_weapon.attempt_fire(true)
 		
 	# Secondary Slot -> Linked to Secondary Fire (Right Click)
 	# Triggers the weapon's "Secondary" mode (false) because it's in the secondary slot.
@@ -486,7 +489,7 @@ func _create_pivot_for_rotor(rotor_node: MeshInstance3D) -> Node3D:
 	rotor_node.get_parent().remove_child(rotor_node)
 	pivot.add_child(rotor_node)
 	rotor_node.transform = Transform3D.IDENTITY
-	rotor_node.position = -center_local
+	rotor_node.position = - center_local
 	
 	return pivot
 
@@ -507,7 +510,7 @@ func _setup_shield_visual():
 	
 	for i in range(segments + 1):
 		var t = float(i) / segments
-		var angle_deg = -arc_angle/2.0 + (t * arc_angle)
+		var angle_deg = - arc_angle / 2.0 + (t * arc_angle)
 		var angle_rad = deg_to_rad(angle_deg)
 		
 		# Normal points INWARDS or OUTWARDS? Shield usually faces out.
@@ -517,7 +520,7 @@ func _setup_shield_visual():
 		# x = sin(angle), z = -cos(angle)
 		
 		var x = radius * sin(angle_rad)
-		var z = -radius * cos(angle_rad) # Forward is -Z
+		var z = - radius * cos(angle_rad) # Forward is -Z
 		
 		# UVs
 		var u = t
@@ -575,15 +578,15 @@ func _setup_shield_visual():
 		# Pivot is likely center of heli.
 		# So mesh vertices are physically at Z = -2.5.
 		# No extra position offset needed if radius is correct.
-		mesh_inst.position = Vector3(0, 0.5, 0.8) 
+		mesh_inst.position = Vector3(0, 0.5, 0.8)
 		mesh_inst.rotation_degrees.y = 180 # Flip to face forward (relative to VisualModel which is 180)
-		mesh_inst.scale = Vector3(1,1,1)
+		mesh_inst.scale = Vector3(1, 1, 1)
 		
 	shield_visual = mesh_inst
 	shield_visual.visible = false
 
 func attempt_parry(attacker_pos: Vector3 = Vector3.ZERO) -> bool:
-	if not is_blocking: 
+	if not is_blocking:
 		return false
 		
 	# Directional Block Check (120 degrees = dot product > 0.5)
@@ -593,7 +596,7 @@ func attempt_parry(attacker_pos: Vector3 = Vector3.ZERO) -> bool:
 		# VisualModel is Y-180 rotated, so its local +Z is model Forward.
 		# But global_transform.basis.z is Player's backward vector (Godot standard).
 		# So Player's forward is -basis.z.
-		var forward = -global_transform.basis.z 
+		var forward = - global_transform.basis.z
 		
 		# If blocking, we face the cursor/target.
 		# Dot product: 1.0 (dead front), 0.5 (60 deg side), 0 (90 deg side)
@@ -618,7 +621,7 @@ func can_block_damage(source_pos: Vector3) -> bool:
 	if source_pos == Vector3.ZERO: return true # Unknown source, assume blockable if active? Or unblockable? Usually unblockable (environmental). Let's be generous.
 	
 	var dir_to_attacker = (source_pos - global_position).normalized()
-	var forward = -global_transform.basis.z 
+	var forward = - global_transform.basis.z
 	return dir_to_attacker.dot(forward) >= 0.5
 
 func _process(delta):

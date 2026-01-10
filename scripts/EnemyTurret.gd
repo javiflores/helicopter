@@ -69,16 +69,21 @@ func fire():
 	
 	if head:
 		# Use head's forward vector (-Z)
-		var forward = -head.global_transform.basis.z
+		var forward = - head.global_transform.basis.z
 		spawn_pos = head.global_position + forward * 2.5 # Offset forward from barrel
 		fire_dir = forward
 		
 	proj.global_position = spawn_pos
-	proj.configure(damage, detection_range, projectile_speed, self)
+	proj.configure(damage, detection_range, projectile_speed, self, 0, get_team())
 	proj.velocity = fire_dir * projectile_speed
 	proj.look_at(spawn_pos + fire_dir, Vector3.UP)
 
-func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO):
+func get_team() -> String:
+	return "foe"
+
+func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO, attacker_team: String = "neutral"):
+	if attacker_team == "foe":
+		return
 	health -= amount
 	_flash_visuals_recursive(self)
 	
@@ -100,8 +105,8 @@ func _flash_visuals_recursive(node: Node):
 				node.set_surface_override_material(0, mat)
 			
 			mat.emission_enabled = true
-			mat.emission = Color.RED
-			mat.emission_energy_multiplier = 3.0
+			mat.emission = Color.WHITE
+			mat.emission_energy_multiplier = 1.0
 			
 			var flash = create_tween()
 			flash.tween_property(mat, "emission_energy_multiplier", 0.0, 0.15)

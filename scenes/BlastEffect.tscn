@@ -1,0 +1,35 @@
+[gd_scene load_steps=5 format=3 uid="uid://b8j2x4q8y502"]
+
+[ext_resource type="Script" path="res://scripts/HitSparks.gd" id="1_script"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_blast"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 0.6, 0.1, 1)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_blast"]
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = 8.0
+initial_velocity_max = 15.0
+damping_min = 10.0
+damping_max = 20.0
+scale_min = 0.3
+scale_max = 0.8
+color = Color(1, 0.5, 0.2, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_blast"]
+material = SubResource("StandardMaterial3D_blast")
+size = Vector3(0.2, 0.2, 0.2)
+
+[node name="BlastEffect" type="GPUParticles3D"]
+emitting = false
+amount = 32
+lifetime = 0.8
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_blast")
+draw_pass_1 = SubResource("BoxMesh_blast")
+script = ExtResource("1_script")

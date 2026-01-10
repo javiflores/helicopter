@@ -17,18 +17,23 @@ var current_burst_shots: int = 0
 var burst_delay: float = 0.15
 var burst_timer: float = 0.0
 
-enum State { IDLE, CHASE, ATTACK, SEEK_COVER }
+enum State {IDLE, CHASE, ATTACK, SEEK_COVER}
 var current_state = State.IDLE
 var player: Node3D = null
 var target_override: Node3D = null
 var cover_tank: Node3D = null
 
 var pickup_scene = preload("res://scenes/Pickup.tscn")
+
 var projectile_scene = preload("res://scenes/Projectile.tscn")
+var blast_scene = null
 
 func _ready():
 	add_to_group("enemies")
 	configure()
+	
+	# Blast Effect Preload
+	blast_scene = preload("res://scenes/BlastEffect.tscn")
 	
 	# Find player
 	var players = get_tree().get_nodes_in_group("player")
@@ -36,8 +41,8 @@ func _ready():
 		player = players[0]
 		
 	# Collision Settings
-	collision_layer = 4 
-	collision_mask = 7 
+	collision_layer = 4
+	collision_mask = 7
 	motion_mode = MOTION_MODE_FLOATING
 
 func configure():
@@ -133,11 +138,11 @@ func _physics_process(delta):
 				if is_peeking:
 					# PEEK: Move to the side of the tank
 					var right = dir_threat_to_tank.cross(Vector3.UP).normalized()
-					var peek_offset = right * 2.0 
+					var peek_offset = right * 2.0
 					desired_pos = tank_pos + peek_offset + (dir_threat_to_tank * 0.5)
 				else:
 					# COVER: Move behind the tank
-					desired_pos = tank_pos + (dir_threat_to_tank * 2.5) 
+					desired_pos = tank_pos + (dir_threat_to_tank * 2.5)
 				
 				if global_position.distance_to(desired_pos) > 0.5:
 					move_towards(desired_pos, move_speed)
@@ -169,7 +174,7 @@ func _physics_process(delta):
 
 func move_towards(target_pos, speed):
 	var direction = (target_pos - global_position).normalized()
-	direction.y = 0 
+	direction.y = 0
 	velocity = direction * speed
 
 func face_target(target_pos):
@@ -199,16 +204,45 @@ func fire_weapon(target_node):
 	spawn_pos.y = 1.0
 	proj.global_position = spawn_pos
 	
-	proj.configure(damage, 20.0, 15.0, self)
+	proj.configure(damage, 20.0, 15.0, self, 0, get_team())
 	
 	var target_vector = (target_node.global_position - spawn_pos).normalized()
 	proj.velocity = target_vector * 15.0
 	proj.look_at(spawn_pos + target_vector, Vector3.UP)
 
-func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO):
+func get_team() -> String:
+	return "foe"
+
+func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO, attacker_team: String = "neutral"):
+	if attacker_team == "foe":
+		return
+	
+	_flash_on_hit()
+	
 	health -= amount
 	if health <= 0:
 		die()
+
+func _flash_on_hit():
+	var meshes = []
+	# Find all meshes to flash
+	for child in get_children():
+		if child is MeshInstance3D:
+			meshes.append(child)
+			
+	for mesh in meshes:
+		var mat = mesh.get_active_material(0)
+		if mat:
+			var tween = create_tween()
+			var _original_color = mat.albedo_color
+			# Flash white/bright
+			tween.tween_property(mat, "emission_enabled", true, 0.0)
+			tween.tween_property(mat, "emission", Color.WHITE, 0.0)
+			tween.tween_property(mat, "emission_energy_multiplier", 0.5, 0.0)
+			
+			# Fade back
+			tween.tween_interval(0.05)
+			tween.tween_property(mat, "emission_enabled", false, 0.05)
 
 func die():
 	if is_instance_valid(cover_tank) and cover_tank.has_method("unregister_cover"):
@@ -219,6 +253,12 @@ func die():
 		get_parent().add_child(pickup)
 		pickup.global_position = global_position
 		pickup.amount = randi_range(1, 3) # Scouts drop less
+		
+	if blast_scene:
+		var blast = blast_scene.instantiate()
+		get_parent().add_child(blast)
+		blast.global_position = global_position
+		
 	queue_free()
 
 func reset_target():
@@ -291,4 +331,3 @@ func _process(delta):
 			is_stunned = false
 			print(mob_id, " recovered from stun.")
 		return # Skip other logic
-

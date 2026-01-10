@@ -47,7 +47,8 @@ func _ready():
 	
 	# Spawn indicators for existing valid nodes
 	for obj_node in GameManager.active_objective_nodes:
-		_spawn_indicator(obj_node)
+		if is_instance_valid(obj_node):
+			_spawn_indicator(obj_node)
 		
 	boss_hud.visible = false
 
@@ -110,6 +111,9 @@ func _on_objective_completed(node: Node3D):
 		indicators.erase(node)
 
 func _spawn_indicator(target: Node3D):
+	if not is_instance_valid(target):
+		return
+		
 	if target in indicators and is_instance_valid(indicators[target]):
 		return
 		

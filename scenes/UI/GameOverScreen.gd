@@ -3,7 +3,9 @@ extends Control
 func _ready():
 	hide()
 	$Panel/VBoxContainer/RestartButton.pressed.connect(_on_restart_pressed)
+	$Panel/VBoxContainer/RestartButton.text = "RETURN TO BASE"
 	$Panel/VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
+	$Panel/VBoxContainer/QuitButton.text = "QUIT GAME"
 
 func setup(is_victory: bool = false):
 	show()
@@ -20,7 +22,9 @@ func setup(is_victory: bool = false):
 
 func _on_restart_pressed():
 	get_tree().paused = false
-	get_tree().reload_current_scene()
+	GameManager.reset_objectives()
+	# Return to Base (Start Screen)
+	get_tree().change_scene_to_file("res://scenes/UI/RunStartScreen.tscn")
 
 func _on_quit_pressed():
 	get_tree().quit()

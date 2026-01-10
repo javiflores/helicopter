@@ -13,7 +13,7 @@ var attack_cooldown: float = 0.0
 var fire_rate: float = 0.25 # FAST fire rate
 var damage: float = 10.0
 
-enum State { IDLE, CHASE, ATTACK, PROTECT }
+enum State {IDLE, CHASE, ATTACK, PROTECT}
 var current_state = State.IDLE
 var player: Node3D = null
 var target_override: Node3D = null
@@ -24,6 +24,7 @@ var current_cover_slots: int = 0
 
 var pickup_scene = preload("res://scenes/Pickup.tscn")
 var projectile_scene = preload("res://scenes/Projectile.tscn")
+var blast_scene = preload("res://scenes/BlastEffect.tscn")
 
 func _ready():
 	add_to_group("enemies")
@@ -35,8 +36,8 @@ func _ready():
 		player = players[0]
 		
 	# Collision Settings
-	collision_layer = 4 
-	collision_mask = 7 
+	collision_layer = 4
+	collision_mask = 7
 	motion_mode = MOTION_MODE_FLOATING
 
 func configure():
@@ -73,7 +74,7 @@ func _physics_process(delta):
 	var needs_reengage = (dist > attack_range * 1.5)
 	
 	# Chance to switch to PROTECT
-	if current_state != State.PROTECT and randf() < 0.02: 
+	if current_state != State.PROTECT and randf() < 0.02:
 		# If bunkered, only switch if we really need to move
 		if not is_bunkered or needs_reengage:
 			var ally = find_ally_to_protect()
@@ -102,7 +103,7 @@ func _physics_process(delta):
 					face_target(target.global_position)
 				
 		State.ATTACK:
-			if dist > attack_range * 1.5: 
+			if dist > attack_range * 1.5:
 				current_state = State.CHASE
 			else:
 				velocity = Vector3.ZERO
@@ -150,7 +151,7 @@ func _physics_process(delta):
 
 func move_towards(target_pos, speed):
 	var direction = (target_pos - global_position).normalized()
-	direction.y = 0 
+	direction.y = 0
 	velocity = direction * speed
 
 func face_target(target_pos):
@@ -173,7 +174,6 @@ func find_ally_to_protect() -> Node3D:
 	return closest_ally
 
 
-
 func fire_weapon(target_node):
 	var proj = projectile_scene.instantiate()
 	get_parent().add_child(proj)
@@ -183,16 +183,44 @@ func fire_weapon(target_node):
 	proj.global_position = spawn_pos
 	
 	# Tank projectiles: Slower (12) but hit harder
-	proj.configure(damage, 25.0, 12.0, self)
+	proj.configure(damage, 25.0, 12.0, self, 0, get_team())
 	
 	var target_vector = (target_node.global_position - spawn_pos).normalized()
 	proj.velocity = target_vector * 12.0
 	proj.look_at(spawn_pos + target_vector, Vector3.UP)
 
-func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO):
+func get_team() -> String:
+	return "foe"
+
+func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO, attacker_team: String = "neutral"):
+	if attacker_team == "foe":
+		return
+		
+	_flash_on_hit()
+	
 	health -= amount
 	if health <= 0:
 		die()
+
+func _flash_on_hit():
+	var meshes = []
+	# Find all meshes to flash
+	for child in get_children():
+		if child is MeshInstance3D:
+			meshes.append(child)
+			
+	for mesh in meshes:
+		var mat = mesh.get_active_material(0)
+		if mat:
+			var tween = create_tween()
+			# Flash white/bright
+			tween.tween_property(mat, "emission_enabled", true, 0.0)
+			tween.tween_property(mat, "emission", Color.WHITE, 0.0)
+			tween.tween_property(mat, "emission_energy_multiplier", 0.5, 0.0)
+			
+			# Fade back
+			tween.tween_interval(0.05)
+			tween.tween_property(mat, "emission_enabled", false, 0.05)
 
 func die():
 	if pickup_scene:
@@ -200,6 +228,12 @@ func die():
 		get_parent().add_child(pickup)
 		pickup.global_position = global_position
 		pickup.amount = randi_range(3, 8) # Tank drops more
+		
+	if blast_scene:
+		var blast = blast_scene.instantiate()
+		get_parent().add_child(blast)
+		blast.global_position = global_position
+		
 	queue_free()
 
 func reset_target():
@@ -244,7 +278,7 @@ func register_cover_occupant(node: Node3D, priority: int) -> bool:
 	if current_cover_slots >= max_cover_slots:
 		return false
 	
-	cover_occupants.append({ "node": node, "priority": priority })
+	cover_occupants.append({"node": node, "priority": priority})
 	current_cover_slots = cover_occupants.size()
 	return true
 
@@ -259,7 +293,6 @@ func unregister_cover_occupant(node: Node3D):
 func request_priority_cover(requester: Node3D) -> bool:
 	# Priority 1: High (Support)
 	# Priority 0: Low (Scout)
-	
 	# If we have space, just take it
 	if can_provide_cover():
 		register_cover_occupant(requester, 1)

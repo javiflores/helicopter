@@ -59,4 +59,4 @@ func _fire_bullet(attack_data: Dictionary, count: int, spread_deg: float):
 		proj.velocity = forward * speed
 		
 		if proj.has_method("configure"):
-			proj.configure(damage, range_val, speed, get_parent(), pierce)
+			proj.configure(damage, range_val, speed, get_parent(), pierce, "friend")

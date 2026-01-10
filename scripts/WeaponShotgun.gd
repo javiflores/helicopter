@@ -43,7 +43,7 @@ func fire_primary():
 		dir.y = 0
 		proj.velocity = dir * speed
 		
-		proj.configure(damage, range_val, speed, get_parent(), 0)
+		proj.configure(damage, range_val, speed, get_parent(), 0, "friend")
 
 func fire_secondary():
 	if not can_fire_secondary: return
@@ -76,7 +76,7 @@ func fire_secondary():
 			if dir_to_enemy.dot(forward) > 0.5: # ~60 degrees half-angle -> 120 total? 0.707 is 45. 0.5 is 60.
 				# Hit!
 				if enemy.has_method("take_damage"):
-					enemy.take_damage(damage, global_position)
+					enemy.take_damage(damage, global_position, "friend")
 				
 				if enemy.has_method("apply_knockback"):
 					enemy.apply_knockback(dir_to_enemy * force)

@@ -37,7 +37,7 @@ func _ready():
 	var tween = create_tween()
 	tween.tween_property(self, "position:y", 0.0, 2.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
-func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO):
+func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO, _attacker_team: String = "neutral"):
 	health -= amount
 	if health <= 0:
 		destroy()
@@ -46,6 +46,6 @@ func destroy():
 	block_destroyed.emit()
 	queue_free()
 
-func arm_explosive(delay: float):
+func arm_explosive(_delay: float):
 	# Optional: Timer logic if handled locally, but Boss currently controls timing.
 	pass

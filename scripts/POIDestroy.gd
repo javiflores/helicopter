@@ -61,7 +61,12 @@ func find_node_by_pattern(node: Node, patterns: Array) -> Node:
 		if res: return res
 	return null
 
-func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO):
+func get_team() -> String:
+	return "foe"
+
+func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO, attacker_team: String = "neutral"):
+	if attacker_team == "foe":
+		return
 	if is_destroyed: return
 	
 	current_health -= amount
@@ -94,7 +99,7 @@ func _flash_meshes_recursive(node: Node):
 			
 			mat.emission_enabled = true
 			mat.emission = Color.RED
-			mat.emission_energy_multiplier = 2.0
+			mat.emission_energy_multiplier = 1.0
 			
 			# Use a one-shot tween to flash and then turn off
 			var flash = create_tween()

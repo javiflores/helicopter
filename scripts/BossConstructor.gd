@@ -71,7 +71,6 @@ func _physics_process(delta):
 		
 func handle_phase_1(delta):
 	# "Builder": Moves slowly, constructs 'Blast Walls' that block fire, summons Scout Drones.
-	
 	# Movement
 	var dir = (target.global_position - global_position).normalized()
 	dir.y = 0
@@ -101,7 +100,7 @@ func fire_single_projectile():
 	proj.global_position = global_position + Vector3(0, 2, 0)
 	
 	# Configure(damage, range, speed, owner)
-	proj.configure(10.0, 40.0, 20.0, self) 
+	proj.configure(10.0, 40.0, 20.0, self, 0, get_team())
 	
 	var aim_dir = (target.global_position - proj.global_position).normalized()
 	proj.velocity = aim_dir * 20.0
@@ -153,7 +152,7 @@ func spawn_minions():
 		var drone = drone_scene.instantiate()
 		get_parent().add_child(drone)
 		drone.global_position = global_position + offset
-		drone.global_position.y = 1.0 
+		drone.global_position.y = 1.0
 		drone.add_to_group("enemy")
 		
 		# Drone self-configures in _ready()
@@ -201,7 +200,7 @@ func raise_rock_block(is_cluster: bool = false):
 		spawn_pos = target.global_position + Vector3(cos(angle) * dist, 0, sin(angle) * dist)
 	
 	# Set position BEFORE adding to tree so _ready() logic works correctly (starts at -5 relative to this)
-	spawn_pos.y = 0 
+	spawn_pos.y = 0
 	block.position = spawn_pos
 	
 	get_parent().add_child(block)
@@ -227,7 +226,7 @@ func fire_dual_turrets():
 		var proj = projectile_scene.instantiate()
 		get_tree().root.add_child(proj)
 		proj.global_position = spawn_pos
-		proj.configure(15.0, 50.0, 35.0, self) 
+		proj.configure(15.0, 50.0, 35.0, self, 0, get_team())
 		var dir = (target.global_position - spawn_pos).normalized()
 		proj.velocity = dir * 35.0
 		proj.look_at(spawn_pos + dir, Vector3.UP)
@@ -248,7 +247,7 @@ func spawn_shrapnel(origin: Vector3, count: int = 4):
 		var proj = projectile_scene.instantiate()
 		get_tree().root.add_child(proj)
 		proj.global_position = origin + Vector3(0, 1, 0)
-		proj.configure(10.0, 20.0, 20.0, self)
+		proj.configure(10.0, 20.0, 20.0, self, 0, get_team())
 		proj.velocity = dir * 20.0
 		proj.look_at(proj.global_position + dir, Vector3.UP)
 
@@ -262,14 +261,46 @@ func enter_phase_2():
 func enter_phase_3():
 	phase = 3
 	print("BOSS PHASE 3: FORTRESS + SPAWN MODE")
-	spawn_timer = 5.0 # Reset spawn timer: Start immediately with a full cycle or 3s? 
+	spawn_timer = 5.0 # Reset spawn timer: Start immediately with a full cycle or 3s?
 	# Let's keep it consistent with the logic in P3
 	
-func take_damage(amount, _source_pos=Vector3.ZERO):
+func get_team() -> String:
+	return "foe"
+
+func take_damage(amount, _source_pos = Vector3.ZERO, attacker_team = "neutral"):
+	if attacker_team == "foe":
+		return
 	health -= amount
 	GameManager.notify_boss_health(health, max_health)
+	
+	_flash_on_hit()
+	
 	if health <= 0:
 		die()
+
+func _flash_on_hit():
+	# Simple recursive flash for Boss meshes
+	_flash_visuals_recursive(self)
+
+func _flash_visuals_recursive(node: Node):
+	if node is MeshInstance3D:
+		var mat = node.get_active_material(0)
+		if mat:
+			if not mat.resource_name.contains("unique"):
+				mat = mat.duplicate()
+				mat.resource_name += "_unique"
+				node.set_surface_override_material(0, mat)
+			
+			var tween = create_tween()
+			tween.tween_property(mat, "emission_enabled", true, 0.0)
+			tween.tween_property(mat, "emission", Color.WHITE, 0.0)
+			tween.tween_property(mat, "emission_energy_multiplier", 1.0, 0.0)
+			
+			tween.tween_interval(0.05)
+			tween.tween_property(mat, "emission_enabled", false, 0.05)
+			
+	for child in node.get_children():
+		_flash_visuals_recursive(child)
 
 func die():
 	print("Boss Defeated!")

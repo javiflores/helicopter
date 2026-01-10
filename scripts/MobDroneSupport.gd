@@ -15,7 +15,7 @@ var heal_timer: float = 0.0
 
 var is_healing: bool = false
 
-enum State { IDLE, FOLLOW_ALLY, SUPPORT, FLEE, SEEK_COVER }
+enum State {IDLE, FOLLOW_ALLY, SUPPORT, FLEE, SEEK_COVER}
 var current_state = State.IDLE
 var player: Node3D = null
 var target_ally: Node3D = null
@@ -23,6 +23,7 @@ var cover_tank: Node3D = null
 
 var pickup_scene = preload("res://scenes/Pickup.tscn")
 # No projectile scene, this drone doesn't shoot
+var blast_scene = preload("res://scenes/BlastEffect.tscn")
 
 # Visuals for healing
 var heal_radius_indicator: MeshInstance3D = null
@@ -37,8 +38,8 @@ func _ready():
 		player = players[0]
 		
 	# Collision Settings
-	collision_layer = 4 
-	collision_mask = 7 
+	collision_layer = 4
+	collision_mask = 7
 	motion_mode = MOTION_MODE_FLOATING
 	
 	setup_heal_visuals()
@@ -136,7 +137,7 @@ func _physics_process(delta):
 			var dir_threat_to_tank = (tank_pos - threat_pos).normalized()
 			
 			# Hiding spot is further behind tank
-			var desired_pos = tank_pos + (dir_threat_to_tank * 3.0) 
+			var desired_pos = tank_pos + (dir_threat_to_tank * 3.0)
 			
 			if global_position.distance_to(desired_pos) > 0.5:
 				move_towards(desired_pos, move_speed)
@@ -172,7 +173,7 @@ func _physics_process(delta):
 
 func move_towards(target_pos, speed):
 	var direction = (target_pos - global_position).normalized()
-	direction.y = 0 
+	direction.y = 0
 	velocity = direction * speed
 	if direction.length_squared() > 0.01:
 		look_at(global_position + direction, Vector3.UP)
@@ -259,10 +260,38 @@ func perform_aoe_heal():
 		# Play heal effect
 		pulse_heal_visual()
 
-func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO):
+func get_team() -> String:
+	return "foe"
+
+func take_damage(amount: float, _source_pos: Vector3 = Vector3.ZERO, attacker_team: String = "neutral"):
+	if attacker_team == "foe":
+		return
+	
+	_flash_on_hit()
+	
 	health -= amount
 	if health <= 0:
 		die()
+
+func _flash_on_hit():
+	var meshes = []
+	# Find all meshes to flash
+	for child in get_children():
+		if child is MeshInstance3D:
+			meshes.append(child)
+			
+	for mesh in meshes:
+		var mat = mesh.get_active_material(0)
+		if mat:
+			var tween = create_tween()
+			# Flash white/bright
+			tween.tween_property(mat, "emission_enabled", true, 0.0)
+			tween.tween_property(mat, "emission", Color.WHITE, 0.0)
+			tween.tween_property(mat, "emission_energy_multiplier", 0.5, 0.0)
+			
+			# Fade back
+			tween.tween_interval(0.05)
+			tween.tween_property(mat, "emission_enabled", false, 0.05)
 
 func die():
 	unregister_cover()
@@ -271,6 +300,12 @@ func die():
 		get_parent().add_child(pickup)
 		pickup.global_position = global_position
 		pickup.amount = randi_range(1, 3)
+		
+	if blast_scene:
+		var blast = blast_scene.instantiate()
+		get_parent().add_child(blast)
+		blast.global_position = global_position
+
 	queue_free()
 
 func setup_visuals():

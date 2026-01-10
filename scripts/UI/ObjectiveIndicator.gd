@@ -9,7 +9,7 @@ func configure(target: Node3D):
 	target_node = target
 	# Optionally set color based on target type
 	
-func _process(delta):
+func _process(_delta):
 	if not is_instance_valid(target_node):
 		queue_free()
 		return
@@ -46,7 +46,7 @@ func _process(delta):
 		var edge_pos = center + dir * (min(viewport_rect.size.x, viewport_rect.size.y) / 2.0 - margin)
 		
 		# Better rectangle clamping
-		var t = dir * (center - Vector2(margin, margin))
+		var _t = dir * (center - Vector2(margin, margin))
 		# (Simplified circular clamp for now, usually good enough for "Compass")
 		
 		global_position = edge_pos - size / 2.0

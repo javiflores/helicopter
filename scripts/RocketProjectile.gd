@@ -1,13 +1,14 @@
 extends "res://scripts/Projectile.gd"
 
 var blast_radius = 5.0
+var blast_scene = preload("res://scenes/BlastEffect.tscn")
 
 var target: Node3D = null
 var turn_speed: float = 5.0 # Radians per second
 
-func configure(dmg, rng, proj_speed = 15.0, owner_node = null, _pierce = 0):
-	super.configure(dmg, rng, proj_speed, owner_node, _pierce)
-	speed = 15.0 
+func configure(dmg, rng, proj_speed = 15.0, owner_node = null, _pierce = 0, team = "neutral"):
+	super.configure(dmg, rng, proj_speed, owner_node, _pierce, team)
+	speed = 15.0
 	lifetime = 5.0 # Longer life for homing
 
 func set_target(new_target):
@@ -59,15 +60,15 @@ func _on_body_entered(body):
 	# Parry Check
 	if body.has_method("attempt_parry") and body.attempt_parry(global_position):
 		print("Rocket Parried/Reflected!")
-		shooter = body 
-		velocity = -velocity * 1.5
+		shooter = body
+		velocity = - velocity * 1.5
 		if velocity.length_squared() > 0.01:
 			look_at(global_position + velocity, Vector3.UP)
 		lifetime = 5.0
 		damage *= 2.0
 		
 		# Reset target so it doesn't try to loop back to the player immediately
-		target = null 
+		target = null
 		# Ideally find a NEW target (enemy)
 		target = _find_new_target()
 		
@@ -78,6 +79,11 @@ func _on_body_entered(body):
 
 func explode():
 	print("Rocket Exploding! Radius: ", blast_radius)
+	
+	if blast_scene:
+		var blast = blast_scene.instantiate()
+		get_parent().add_child(blast)
+		blast.global_position = global_position
 	
 	# Visual Debug (Optional)
 	
@@ -108,6 +114,6 @@ func explode():
 		
 		print("Rocket Blast Hit: ", body.name)
 		if body.has_method("take_damage"):
-			body.take_damage(damage)
+			body.take_damage(damage, global_position, attacker_team)
 			
 	queue_free()

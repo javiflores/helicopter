@@ -3,7 +3,7 @@
 
 ## 1. Game Overview
 *   **Title:** Helicopter Helicopter Heli...
-*   **Version:** 0.1
+*   **Version:** 0.2
 *   **Description:** Top down helicopter combat game with roguelike elements, procedurally generated content and a focus on strategy and resource management.
 
 ## 2. Core Resources & Economy

@@ -66,14 +66,14 @@ func setup_convoy():
 		
 		# SPAWN Formation (2x2) inside Start Garage
 		# i=0: left front, i=1: right front, i=2: left back, i=3: right back
-		var row = floor(i / 2)
-		var col = i % 2 
-		var col_offset = (col * 3.0) - 1.5 
-		var row_offset = -row * 3.0
+		var row = floor(i / 2.0)
+		var col = i % 2
+		var col_offset = (col * 3.0) - 1.5
+		var row_offset = - row * 3.0
 		
 		# Move start slightly towards end so we aren't completely in wall?
 		# Actually center is fine.
-		var spawn_pos_rel = (right * col_offset) + (dir_to_end * (row_offset + 1.5)) 
+		var spawn_pos_rel = (right * col_offset) + (dir_to_end * (row_offset + 1.5))
 		vehicle.global_position = global_position + spawn_pos_rel
 		
 		vehicle.look_at(end_point.global_position, Vector3.UP)
@@ -152,7 +152,7 @@ func handle_escort(delta):
 			for v in vehicles:
 				if is_instance_valid(v) and v.current_health > 0:
 					v.visible = false
-					v.set_collision_layer_value(1, false) 
+					v.set_collision_layer_value(1, false)
 			
 			# Retarget all enemies to player
 			get_tree().call_group("enemies", "reset_target")

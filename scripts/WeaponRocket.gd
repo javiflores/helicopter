@@ -77,7 +77,7 @@ func _spawn_rocket(specs, pos, rot, target_node, scale_mod: float = 1.0):
 	var range_val = float(specs.get("range", 30))
 	var speed = 20.0
 	
-	rocket.configure(damage, range_val, speed, get_parent())
+	rocket.configure(damage, range_val, speed, get_parent(), 0, "friend")
 	
 	if target_node and rocket.has_method("set_target"):
 		rocket.set_target(target_node)
