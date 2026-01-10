@@ -16,6 +16,9 @@ var max_health: float = 100.0
 var scraps: int = 0
 var intel: int = 0
 
+const AIR_THRUSTER_SCENE = preload("res://scenes/AirThruster.tscn")
+
+
 # Dodge properties
 var can_dodge: bool = true
 var is_dodging: bool = false
@@ -46,6 +49,18 @@ var main_rotor: Node3D = null
 var tail_rotor: Node3D = null
 var aim_reticle: Node3D = null
 
+
+# Aiming Visuals
+# Aim Assist
+var aim_assist_angle_deg: float = 3.0
+var aim_assist_range: float = 60.0
+
+var using_mouse_input: bool = true
+
+func _input(event):
+	if event is InputEventMouseMotion and event.relative.length_squared() > 1.0:
+		using_mouse_input = true
+
 func _ready():
 	add_to_group("player")
 	
@@ -65,6 +80,7 @@ func _ready():
 	
 	equip_weapons(weapon_primary, weapon_secondary)
 	setup_reticle()
+	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 
 func setup_reticle():
 	var reticle_scene = load("res://scenes/AimReticle.tscn")
@@ -190,6 +206,19 @@ func start_dodge(dir_input: Vector2):
 		dodge_direction_locked = Vector3(dir_input.x, 0, dir_input.y).normalized()
 	
 	print("Air Blaster Dodge: ", dodge_direction_locked)
+	
+	# Visual Effect: Air Thruster
+	# Fire in OPPOSITE direction of movement
+	var effect = AIR_THRUSTER_SCENE.instantiate()
+	add_child(effect)
+	effect.position = Vector3(0, 0, 0)
+	
+	if dodge_direction_locked.length_squared() > 0.001:
+		# Look opposite to dodge direction (particle shoots -Z local, so looking at -dodge dir shoots opposite)
+		effect.look_at(global_position - dodge_direction_locked, Vector3.UP)
+	else:
+		# Fallback: fire forward if stationary
+		effect.look_at(global_position + global_transform.basis.z, Vector3.UP)
 
 func end_dodge():
 	is_dodging = false
@@ -370,7 +399,8 @@ func handle_aiming(delta):
 			var target_offset = Vector3(aim_input.x, 0, aim_input.y) * 10.0
 			target_pos = global_position + target_offset
 		has_target = true
-	else:
+		using_mouse_input = false # Disables mouse aim until mouse moves again
+	elif using_mouse_input:
 		# Mouse Aiming (Fallback)
 		if camera:
 			var mouse_pos = get_viewport().get_mouse_position()
@@ -381,6 +411,10 @@ func handle_aiming(delta):
 			if intersection:
 				target_pos = intersection
 				has_target = true
+	
+	# Apply Aim Assist (Snapping)
+	if has_target:
+		target_pos = _apply_aim_assist(target_pos)
 	
 	if has_target:
 		var target_dir = (target_pos - global_position).normalized()
@@ -406,7 +440,7 @@ func handle_aiming(delta):
 				# Smoothly interpolate body rotation
 				var new_quat = current_quat.slerp(target_quat, delta * rotation_speed)
 				global_basis = Basis(new_quat)
-			
+
 		# Update reticle position
 		if aim_reticle:
 			aim_reticle.global_position = target_pos
@@ -684,3 +718,50 @@ func collect_loot(type: int, amount: float):
 			var int_amount = int(amount)
 			intel += int_amount
 			print("Collected ", int_amount, " intel.")
+
+	# Add as child of root so it doesn't rotate with heli body pitch/roll automatically
+	# We manually control it
+	# Visual lines removed as per request
+	pass
+
+func _apply_aim_assist(current_aim_pos: Vector3) -> Vector3:
+	var best_target = null
+	var min_angle = deg_to_rad(aim_assist_angle_deg)
+	var heli_pos = global_position
+	
+	# Direction we are currently aiming manually
+	var aim_dir = (current_aim_pos - heli_pos).normalized()
+	aim_dir.y = 0 # Compare on flat plane
+	
+	var enemies = get_tree().get_nodes_in_group("enemies") # Using "enemies" group logic from Turret
+	# Also check "enemy" singular just in case
+	var enemies_singular = get_tree().get_nodes_in_group("enemy")
+	
+	var candidates = []
+	candidates.append_array(enemies)
+	for e in enemies_singular:
+		if not e in candidates:
+			candidates.append(e)
+
+	for enemy in candidates:
+		if not is_instance_valid(enemy): continue
+		
+		# Range Check
+		var dist = heli_pos.distance_to(enemy.global_position)
+		if dist > aim_assist_range: continue
+		
+		# Angle Check
+		var dir_to_enemy = (enemy.global_position - heli_pos).normalized()
+		dir_to_enemy.y = 0
+		
+		var angle = aim_dir.angle_to(dir_to_enemy)
+		if angle < min_angle:
+			min_angle = angle
+			best_target = enemy
+			
+	if best_target:
+		# Snap to center of enemy (offset slightly up usually good)
+		# Assuming enemies have origin at feet/ground
+		return best_target.global_position + Vector3(0, 1.0, 0)
+		
+	return current_aim_pos

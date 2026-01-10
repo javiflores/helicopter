@@ -87,23 +87,17 @@ func setup_default_inputs():
 	# Controller Defaults
 	# Layout based on user request:
 	# Primary: X, Secondary: Y, Dodge: A, Skill: B, Block: RB
+	# Controller Defaults
+	# Layout based on user request:
+	# Primary: LT, Secondary: RT, Dodge: RB, Block: LB, Skill: X
+	# Freed up: A (Interact), Y (Ultimate)
 	var joy_inputs = {
-		"dodge": [JOY_BUTTON_A], 
-		"skill": [JOY_BUTTON_B],
-		"fire_primary": [JOY_BUTTON_X], 
-		"fire_secondary": [JOY_BUTTON_Y], 
-		"block": [JOY_BUTTON_RIGHT_SHOULDER],
-		"interact": [JOY_BUTTON_LEFT_SHOULDER], # LB as Interact/Reload generic
-		"ultimate": [JOY_BUTTON_RIGHT_SHOULDER] # RT handled in Axes
+		"dodge": [JOY_BUTTON_RIGHT_SHOULDER], # RB
+		"skill": [JOY_BUTTON_X], # X
+		"block": [JOY_BUTTON_LEFT_SHOULDER], # LB
+		"interact": [JOY_BUTTON_A], # A (Swapped from Dodge)
+		"ultimate": [JOY_BUTTON_Y] # Y (Swapped from Secondary)
 	}
-    # Note: Trigger is an axis, handled below. Mapping Ultimate to RT (Axis 5) if digital check is needed, 
-    # but InputEventJoypadMotion is better for triggers. 
-    # Let's map Ultimate to RT via Axis check logic or just Button index if the controller supports it as button (unreliable).
-    # For reliability in Godot InputMap, Triggers are often Axes.
-    # checking joy_inputs loop... it uses InputEventJoypadButton.
-    
-    # Let's use Start for Menu?
-    
 	
 	# Axis Mappings (Action, Axis, Value)
 	var joy_axes = [
@@ -115,7 +109,8 @@ func setup_default_inputs():
 		["aim_right", JOY_AXIS_RIGHT_X, 1.0],
 		["aim_forward", JOY_AXIS_RIGHT_Y, -1.0],
 		["aim_back", JOY_AXIS_RIGHT_Y, 1.0],
-		["ultimate", JOY_AXIS_TRIGGER_RIGHT, 1.0] # RT as Ultimate
+		["fire_primary", JOY_AXIS_TRIGGER_RIGHT, 1.0], # RT
+		["fire_secondary", JOY_AXIS_TRIGGER_LEFT, 1.0] # LT
 	]
 	
 	# Register Actions

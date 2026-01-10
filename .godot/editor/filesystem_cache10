@@ -1,5 +1,5 @@
 63f7b34db8d8cdea90c76aacccf841ec
-::res://::1768064680
+::res://::1768068010
 agent_build_guide.md::TextFile::-1::1767540021::0::1::::<><><>0<>0<><>::
 game_skeleton.json::JSON::-1::1767914807::0::1::::<><><>0<>0<><>::
 game_skeleton.md::TextFile::-1::1767914785::0::1::::<><><>0<>0<><>::
@@ -20,8 +20,9 @@ Military_Helicopter02_0.png::CompressedTexture2D::1041669902922213053::176754002
 ::res://resources/::1767540021
 ::res://resources/heli/::1767620957
 Military_Helicopter01.fbx::PackedScene::6988389994266248188::1767540021::1767620957::1::::<><><>0<>0<>4177e1338237b9cfd48f62ce0bb9e613<>res://.godot/imported/Military_Helicopter01.fbx-1a7789760034510d54faa2df72734841.scn::
-::res://scenes/::1768055036
+::res://scenes/::1768067894
 AimReticle.tscn::PackedScene::-1::1767540021::0::1::::<><><>0<>0<><>::
+AirThruster.tscn::PackedScene::-1::1768067894::0::1::::<><><>0<>0<><>::res://scripts/AirThruster.gd
 BlastEffect.tscn::PackedScene::138909232500761461::1768055036::0::1::::<><><>0<>0<><>::res://scripts/HitSparks.gd
 BossConstructor.tscn::PackedScene::-1::1767540021::0::1::::<><><>0<>0<><>::res://scripts/BossConstructor.gd
 ConcussiveBlast.tscn::PackedScene::1491916031425970744::1767911283::0::1::::<><><>0<>0<><>::res://scripts/ConcussiveBlast.gd
@@ -62,7 +63,8 @@ ObjectiveIndicator.tscn::PackedScene::-1::1767540028::0::1::::<><><>0<>0<><>::re
 RunStartScreen.tscn::PackedScene::-1::1767631343::0::1::::<><><>0<>0<><>::res://scripts/UI/RunStartScreen.gd
 UpgradeScreen.gd::GDScript::5412623193696957496::1767540021::0::1::::<>Control<><>0<>0<><>::
 UpgradeScreen.tscn::PackedScene::-1::1767540021::0::1::::<><><>0<>0<><>::res://scenes/UI/UpgradeScreen.gd
-::res://scripts/::1768053886
+::res://scripts/::1768067959
+AirThruster.gd::GDScript::848924655268257368::1768067889::0::1::::<>GPUParticles3D<><>0<>0<><>::
 BossConstructor.gd::GDScript::6781723865824134848::1768056140::0::1::::<>CharacterBody3D<><>0<>0<><>::
 CameraFollow.gd::GDScript::6413545322881469311::1767540021::0::1::::<>Camera3D<><>0<>0<><>::
 ConcussiveBlast.gd::GDScript::7152932203168059562::1767911172::0::1::::<>Node3D<><>0<>0<><>::
@@ -70,13 +72,13 @@ ConvoyVehicle.gd::GDScript::8322013151739086576::1768050691::0::1::::<>Character
 DungeonGenerator.gd::GDScript::1732146918280146173::1767621710::0::1::::<>Node3D<><>0<>0<><>::
 EnemyTurret.gd::GDScript::3056105279580206911::1768064661::0::1::::<>StaticBody3D<><>0<>0<><>::
 GameLevel.gd::GDScript::8228545208531444850::1767540021::0::1::::<>Node3D<><>0<>0<><>::
-GameManager.gd::GDScript::2494380838094772391::1768051627::0::1::::<>Node<><>0<>0<><>::
+GameManager.gd::GDScript::2494380838094772391::1768067981::0::1::::<>Node<><>0<>0<><>::
 HitSparks.gd::GDScript::7753135352620259525::1768053770::0::1::::<>GPUParticles3D<><>0<>0<><>::
 MobDroneScout.gd::GDScript::6352757473559091189::1768056132::0::1::::<>CharacterBody3D<><>0<>0<><>::
 MobDroneSupport.gd::GDScript::7923364779179378375::1768056136::0::1::::<>CharacterBody3D<><>0<>0<><>::
 MobDroneTank.gd::GDScript::7741995828482315952::1768056134::0::1::::<>CharacterBody3D<><>0<>0<><>::
 Pickup.gd::GDScript::8604395511646125943::1767540021::0::1::::<>Area3D<><>0<>0<><>::
-PlayerController.gd::GDScript::6900356088838829257::1768060418::0::1::::<>CharacterBody3D<><>0<>0<><>::
+PlayerController.gd::GDScript::6900356088838829257::1768067913::0::1::::<>CharacterBody3D<><>0<>0<><>::
 POIConvoyDefend.gd::GDScript::4326362379904996374::1768055156::0::1::::<>Node3D<><>0<>0<><>::
 POIDestroy.gd::GDScript::3726479754416433010::1768064553::0::1::::<>Node3D<><>0<>0<><>::
 POIRescue.gd::GDScript::1411200340866084824::1767540028::0::1::::<>Node3D<><>0<>0<><>::
