@@ -175,6 +175,7 @@ func start_dodge(dir_input: Vector2):
 	
 	# Lock direction based on Camera or World depending on movement scheme
 	# Reuse handle_movement's direction logic to get world-space vector
+	# Screen Space Dodge
 	var camera = get_viewport().get_camera_3d()
 	if camera:
 		var cam_basis = camera.global_transform.basis
@@ -246,7 +247,7 @@ func handle_movement(delta):
 			visual_mesh.rotation.x = lerp_angle(visual_mesh.rotation.x, local_dodge.z * 0.5, delta * 20.0)
 		return
 
-	# NORMAL MOVEMENT
+	# SCREEN SPACE MOVEMENT
 	var camera = get_viewport().get_camera_3d()
 	var direction = Vector3.ZERO
 	
@@ -262,10 +263,22 @@ func handle_movement(delta):
 	else:
 		direction = Vector3(input_vector.x, 0, input_vector.y).normalized()
 		
+	# Aerodynamic Speed Penalty
+	# Fly fast forward, slower sideways/backward
+	var aero_mult = 1.0
+	if direction.length_squared() > 0.01:
+		var heli_forward = - global_transform.basis.z
+		var alignment = direction.dot(heli_forward)
+		# 1.0 = Forward, 0.0 = Strafe, -1.0 = Back
+		if alignment >= 0:
+			aero_mult = lerp(0.7, 1.0, alignment)
+		else:
+			aero_mult = lerp(0.7, 0.5, -alignment)
+		
 	# Block Movement Penalty
-	var current_speed_mult = 1.0
+	var current_speed_mult = aero_mult
 	if is_blocking:
-		current_speed_mult = 0.5 # Slow down while blocking/parrying
+		current_speed_mult *= 0.5 # Stacks multiplicatively
 	
 	if direction != Vector3.ZERO:
 		velocity.x = move_toward(velocity.x, direction.x * max_speed * current_speed_mult, acceleration * delta)
@@ -281,8 +294,11 @@ func handle_movement(delta):
 		if move_ref == Vector3.ZERO and velocity.length() > 0.1:
 			move_ref = velocity.normalized()
 		var local_move = global_transform.basis.inverse() * move_ref
-		var target_tilt_z = - local_move.x * 0.4
-		var target_tilt_x = local_move.z * 0.4
+		# Fix: Flip sign for Z tilt (Roll) to lean into turn correctly
+		# Adjusted multiplier to 0.6 as requested
+		var target_tilt_z = local_move.x * 0.6
+		# Fix: Flip sign for X tilt (Pitch) to lean forward/back correctly
+		var target_tilt_x = - local_move.z * 0.4
 		
 		# Blocking visuals: Tilt up?
 		if is_blocking:

@@ -1,5 +1,5 @@
 63f7b34db8d8cdea90c76aacccf841ec
-::res://::1768056174
+::res://::1768060467
 agent_build_guide.md::TextFile::-1::1767540021::0::1::::<><><>0<>0<><>::
 game_skeleton.json::JSON::-1::1767914807::0::1::::<><><>0<>0<><>::
 game_skeleton.md::TextFile::-1::1767914785::0::1::::<><><>0<>0<><>::
@@ -76,7 +76,7 @@ MobDroneScout.gd::GDScript::6352757473559091189::1768056132::0::1::::<>Character
 MobDroneSupport.gd::GDScript::7923364779179378375::1768056136::0::1::::<>CharacterBody3D<><>0<>0<><>::
 MobDroneTank.gd::GDScript::7741995828482315952::1768056134::0::1::::<>CharacterBody3D<><>0<>0<><>::
 Pickup.gd::GDScript::8604395511646125943::1767540021::0::1::::<>Area3D<><>0<>0<><>::
-PlayerController.gd::GDScript::6900356088838829257::1768055145::0::1::::<>CharacterBody3D<><>0<>0<><>::
+PlayerController.gd::GDScript::6900356088838829257::1768060418::0::1::::<>CharacterBody3D<><>0<>0<><>::
 POIConvoyDefend.gd::GDScript::4326362379904996374::1768055156::0::1::::<>Node3D<><>0<>0<><>::
 POIDestroy.gd::GDScript::3726479754416433010::1768056142::0::1::::<>Node3D<><>0<>0<><>::
 POIRescue.gd::GDScript::1411200340866084824::1767540028::0::1::::<>Node3D<><>0<>0<><>::
